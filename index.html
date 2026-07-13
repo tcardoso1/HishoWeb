@@ -2574,9 +2574,14 @@ body.alert-panel-closed #toastContainer{
 .comment-input textarea{width:100%;min-height:90px;border:1px solid var(--border);border-radius:14px;padding:14px;background:var(--bg);color:var(--text)}
 .comment-input input{border:1px solid var(--border);border-radius:12px;padding:12px;background:var(--bg);color:var(--text)}
 .comment-meta{display:grid;gap:12px}
-.comment-meta-item{background:rgba(37,99,235,.08);border-radius:14px;padding:12px}
-.comment-meta-label{font-size:11px;text-transform:uppercase;color:var(--muted);margin-bottom:4px;font-weight:700}
-.comment-meta-value{font-size:13px;font-weight:700}
+.comment-meta-item{background:rgba(37,99,235,.08);border-radius:14px;padding:12px;position:relative}
+.comment-meta-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:4px}
+.comment-meta-label{font-size:11px;text-transform:uppercase;color:var(--muted);margin-bottom:0;font-weight:700}
+.comment-meta-value{font-size:13px;font-weight:700;line-height:1.35;overflow-wrap:anywhere;padding-right:2px}
+.comment-copy-btn{width:28px;height:28px;min-width:28px;padding:0!important;border:1px solid rgba(20,10,154,.14)!important;border-radius:8px!important;background:rgba(255,255,255,.74)!important;color:#140A9A!important;display:inline-flex;align-items:center;justify-content:center;box-shadow:none!important;opacity:.72;transition:all .18s ease}
+.comment-copy-btn:hover{opacity:1;background:#fff!important;transform:translateY(-1px);box-shadow:0 5px 14px rgba(20,10,154,.12)!important}
+.comment-copy-btn.copied{background:#DCFCE7!important;color:#15803D!important;border-color:#BBF7D0!important}
+.comment-copy-btn svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .comment-empty{color:var(--muted);text-align:center;padding:40px 20px}
 .table-clickable tbody tr{cursor:pointer;transition:.2s}
 .table-clickable tbody tr:hover{background:rgba(37,99,235,.08)}
@@ -13624,6 +13629,74 @@ function clearCommentModalInputs(){
   if(previsaoInput) previsaoInput.value = '';
 }
 
+function renderCommentMetaItem(label, value){
+  const safeLabel = escapeHtml(label || '');
+  const safeValue = escapeHtml(value === null || value === undefined || String(value).trim() === '' ? '-' : value);
+  return `
+    <div class="comment-meta-item">
+      <div class="comment-meta-head">
+        <div class="comment-meta-label">${safeLabel}</div>
+        <button type="button" class="comment-copy-btn" onclick="copyCommentMetaValue(this)" title="Copiar ${safeLabel}" aria-label="Copiar ${safeLabel}">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+        </button>
+      </div>
+      <div class="comment-meta-value">${safeValue}</div>
+    </div>`;
+}
+
+function formatCommentQuantity(value){
+  if(value === null || value === undefined || String(value).trim() === '') return '-';
+  if(typeof parseNumberBR === 'function'){
+    const parsed = parseNumberBR(value);
+    if(Number.isFinite(parsed)){
+      return parsed.toLocaleString('pt-BR', {maximumFractionDigits:3});
+    }
+  }
+  const normalized = String(value).trim().replace(/\./g,'').replace(',','.');
+  const number = Number(normalized);
+  return Number.isFinite(number)
+    ? number.toLocaleString('pt-BR', {maximumFractionDigits:3})
+    : String(value).trim();
+}
+
+window.copyCommentMetaValue = async function(button){
+  const item = button?.closest('.comment-meta-item');
+  const value = item?.querySelector('.comment-meta-value')?.textContent?.trim() || '';
+  if(!value || value === '-') return;
+
+  try{
+    if(navigator.clipboard && window.isSecureContext){
+      await navigator.clipboard.writeText(value);
+    }else{
+      const textarea = document.createElement('textarea');
+      textarea.value = value;
+      textarea.setAttribute('readonly','');
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      const copied = document.execCommand('copy');
+      textarea.remove();
+      if(!copied) throw new Error('Cópia não suportada');
+    }
+
+    const oldTitle = button.title;
+    button.classList.add('copied');
+    button.title = 'Copiado';
+    button.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"></path></svg>';
+    setTimeout(()=>{
+      button.classList.remove('copied');
+      button.title = oldTitle;
+      button.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    }, 1400);
+  }catch(error){
+    console.error('Erro ao copiar informação:', error);
+    if(typeof notifyUser === 'function'){
+      notifyUser('Não foi possível copiar esta informação.', 'warning', 'Copiar');
+    }
+  }
+};
+
 window.openCommentModal = function(index){
 clearCommentModalInputs();
 
@@ -13638,26 +13711,14 @@ document.getElementById('commentModalOverlay').style.display='flex';
 document.getElementById('commentModalSubtitle').innerText =
 `${row['Cliente Abreviado'] || ''} | Pedido ${row['Nºpedido'] || ''}`;
 
+const quantidadeEmAberto = row['Quantidade (Aberto)'] ?? row['Quantidade em Aberto'] ?? row['Quantidade Aberto'] ?? row['Qtd. Aberto'] ?? row['Qtd Aberto'] ?? '';
+
 document.getElementById('commentMeta').innerHTML = `
-<div class="comment-meta-item">
-<div class="comment-meta-label">Cliente</div>
-<div class="comment-meta-value">${escapeHtml(row['Cliente Abreviado'])}</div>
-</div>
-
-<div class="comment-meta-item">
-<div class="comment-meta-label">Material</div>
-<div class="comment-meta-value">${escapeHtml(row['Material'])}</div>
-</div>
-
-<div class="comment-meta-item">
-<div class="comment-meta-label">Responsável</div>
-<div class="comment-meta-value">${escapeHtml(getResponsavelDisplay(row))}</div>
-</div>
-
-<div class="comment-meta-item">
-<div class="comment-meta-label">POLinha</div>
-<div class="comment-meta-value">${escapeHtml(getPOLinhaFromRow(row))}</div>
-</div>
+${renderCommentMetaItem('Cliente', row['Cliente Abreviado'])}
+${renderCommentMetaItem('Material', row['Material'])}
+${renderCommentMetaItem('Responsável', getResponsavelDisplay(row))}
+${renderCommentMetaItem('PO-Linha', getPOLinhaFromRow(row))}
+${renderCommentMetaItem('Quantidade em aberto', formatCommentQuantity(quantidadeEmAberto))}
 
 <div class="comment-previsao-box">
 <label>Minha Previsão</label>
