@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Hisho Web</title>
+<meta content="#140A9A" name="theme-color"/>
+<link rel="manifest" href="manifest.webmanifest"/>
+<link rel="icon" href="favicon.ico" sizes="any"/>
+<link rel="icon" type="image/png" sizes="32x32" href="assets/icons/icon-32.png"/>
+<link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png"/>
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="apple-mobile-web-app-title" content="Hisho Web"/>
+<meta name="application-name" content="Hisho Web"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<link crossorigin="" href="https://cdn.jsdelivr.net" rel="preconnect"/>
+<link href="//cdn.jsdelivr.net" rel="dns-prefetch"/>
+<link crossorigin="" href="https://upload.wikimedia.org" rel="preconnect"/>
+<link href="//upload.wikimedia.org" rel="dns-prefetch"/>
+<!-- PATCH: filtros por coluna agora recalculam a base, KPIs, gráficos e exportação -->
+<!--
+  HISHO WEB - arquivo reorganizado
+  - Nenhuma função do sistema foi removida.
+  - A ordem dos estilos e scripts foi preservada para manter os overrides atuais.
+  - Os blocos abaixo foram identificados por módulo para facilitar manutenção.
+  - O carregamento externo do Chart.js foi corrigido para não misturar código inline no script com src.
+-->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- =========================================================
+     JS / módulo funcional: comment-modal-bootstrap
+     ========================================================= -->
+<script src="assets/js/core/01-comment-modal-bootstrap.js"></script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/exceljs/dist/exceljs.min.js"></script>
+<!-- =========================================================
+     CSS / módulo visual: estilos-base
+     ========================================================= -->
+<link href="assets/css/app.css" rel="stylesheet"/>
+<link href="assets/css/modules/57-pwa-install.css" rel="stylesheet"/>
+<!-- =========================================================
+     CSS / módulo visual: responsavel-massa-selecao-style
+     ========================================================= -->
+
+<!-- =========================================================
+     CSS / módulo visual: modal-comments-style
+     ========================================================= -->
+
+<!-- =========================================================
+     CSS / módulo visual: ajustes-finais-menu-fontes-avisos
+     ========================================================= -->
+
+<!-- =========================================================
+     CSS / módulo visual: ajustes-previsao-manual-oem-vencidas
+     ========================================================= -->
+
+<!-- =========================================================
+     CSS / módulo visual: ajuste-previsao-modal-visual
+     ========================================================= -->
+
+<!-- =========================================================
+     CSS / módulo visual: ajuste-previsao-texto-livre
+     ========================================================= -->
+
+<!-- =========================================================
+     CSS / módulo visual: ajustes-filtros-datas
+     ========================================================= -->
+
+<!-- =========================================================
+     CSS / módulo visual: filtros-datas-organizados
+     ========================================================= -->
+
+<!-- =========================================================
+     CSS / módulo visual: filtros-minimizaveis-ux
+     ========================================================= -->
+
+<!-- =========================================================
+     CSS / módulo visual: header-buttons-layout-fix
+     ========================================================= -->
+
+<!-- =========================================================
+     CSS / módulo visual: comentarios-api-refresh-style
+     ========================================================= -->
+
+<!-- =========================================================
+     CSS / módulo visual: comentarios-refresh-corrigido
+     ========================================================= -->
+
+<!-- =========================================================
+     CSS / módulo visual: scroll-comentarios-fix
+     ========================================================= -->
+
+<!-- =========================================================
+     CSS / módulo visual: scroll-comentarios-final-fix
+     ========================================================= -->
+
+<!-- =========================================================
+     CSS / módulo visual: comentarios-refresh-visual-final-fix
+     ========================================================= -->
+
+<!-- =========================================================
+     CSS / módulo visual: comentarios-render-ordem-final-fix
+     ========================================================= -->
+
+<!-- =========================================================
+     CSS / módulo visual: faturamento-mes-flag-style
+     ========================================================= -->
+
+<!-- =========================================================
+     CSS / módulo visual: faturamento-apenas-mes-fix
+     ========================================================= -->
+
+<!-- =========================================================
+     CSS / módulo visual: faturamento-remover-ultima-att-style
+     ========================================================= -->
+
+<!-- =========================================================
+     CSS / módulo visual: passivo-style
+     ========================================================= -->
+
+<!-- =========================================================
+     CSS / módulo visual: passivo-table-status-style
+     ========================================================= -->
+
+<!-- =========================================================
+     CSS / módulo visual: responsavel-massa-style
+     ========================================================= -->
+
+<!-- =========================================================
+     CSS / módulo visual: responsavel-modal-transferencia-style
+     ========================================================= -->
+
+<!-- =========================================================
+     CSS / módulo visual: responsavel-texto-normal-fix
+     ========================================================= -->
+
+<!-- =========================================================
+     CSS / módulo visual: hisho-auth-login-style
+     ========================================================= -->
+
+<!-- =========================================================
+     CSS / módulo visual: perfil-modal-clean-css
+     ========================================================= -->
+
+<!-- =========================================================
+     CSS / módulo visual: filtros-lateral-flutuante
+     ========================================================= -->
+
+<!-- =========================================================
+     CSS / módulo visual: background-notifications-style
+     ========================================================= -->
+
+<!-- =========================================================
+     CSS / módulo visual: dark-mode-contraste-salvo-final
+     ========================================================= -->
+
+<!-- =========================================================
+     JS / módulo funcional: dark-mode-persistencia-init
+     ========================================================= -->
+<script src="assets/js/core/04-dark-mode-persistencia-init.js"></script>
+<!-- =========================================================
+     CSS / módulo visual: carteira-export-mask-style
+     ========================================================= -->
+
+<!-- =========================================================
+     CSS / módulo visual: hisho-custom-buttons
+     ========================================================= -->
+
+
+
+
+
+
+
+
+
+</head>
+<body class="hisho-auth-lock" data-app="hisho-web">
+<section aria-labelledby="perfilNomeTopoClean" aria-modal="true" class="perfil-modal-overlay" id="perfilModalClean" role="dialog">
+<div class="perfil-modal">
+<div class="perfil-modal-head">
+<div class="perfil-modal-title">
+<div class="perfil-avatar" id="perfilAvatarClean">U</div>
+<div>
+<strong id="perfilNomeTopoClean">Meu perfil</strong>
+<small>Informações do usuário logado</small>
+</div>
+</div>
+<button class="perfil-close" id="perfilCloseClean" type="button">×</button>
+</div>
+<div class="perfil-modal-body">
+<div class="perfil-row"><span>Nome</span><strong id="perfilNomeClean">Carregando...</strong></div>
+<div class="perfil-row"><span>E-mail</span><strong id="perfilEmailClean">Carregando...</strong></div>
+<div class="perfil-row">
+<span>Permissões</span>
+<strong id="perfilPermissoesClean">Carregando...</strong>
+<div class="perfil-chips" id="perfilChipsClean"></div>
+</div>
+<div class="perfil-actions">
+<button class="perfil-refresh" id="perfilRefreshClean" type="button">Atualizar perfil</button>
+<button class="perfil-logout" id="perfilLogoutClean" type="button">Sair</button>
+</div>
+</div>
+</div>
+</section>
+<section aria-label="Tela de login Hisho Web" aria-modal="true" id="hishoAuthOverlay" role="dialog">
+<div class="hisho-orb one"></div><div class="hisho-orb two"></div><div class="hisho-orb three"></div>
+<section class="hisho-auth-shell">
+<div class="hisho-auth-brand">
+<div>
+<div class="hisho-auth-logo"><span class="hisho-auth-logo-mark">H</span><span>Hisho Web</span></div>
+<div class="hisho-auth-copy">
+<h2>Gestão visual com mais segurança e movimento.</h2>
+<p>Acesse o painel Carteira Norte em um ambiente seguro, moderno e otimizado, projetado para facilitar a análise de dados, acelerar decisões e aumentar a produtividade da operação.</p>
+<div class="hisho-auth-pills"><span class="hisho-auth-pill">Carteira</span><span class="hisho-auth-pill">OTIF</span><span class="hisho-auth-pill">Passivo</span></div>
+</div>
+</div>
+<div class="hisho-auth-metrics">
+<div class="hisho-auth-metric"><strong>⚡</strong><span>Entrada rápida</span></div>
+<div class="hisho-auth-metric"><strong>🔐</strong><span>Cadastro via API</span></div>
+<div class="hisho-auth-metric"><strong>📊</strong><span>Dashboard protegido</span></div>
+</div>
+</div>
+<div class="hisho-auth-panel">
+<div class="hisho-auth-tabs">
+<button class="hisho-auth-tab active" data-auth-tab="login" type="button">Login</button>
+<button class="hisho-auth-tab" data-auth-tab="register" type="button">Criar usuário</button>
+</div>
+<form autocomplete="on" class="hisho-auth-form active" id="hishoLoginForm">
+<h3>Bem-vindo de volta</h3>
+<p class="sub">Entre com seu e-mail e senha para acessar o Hisho Web.</p>
+<div class="hisho-field"><label for="hishoLoginEmail">E-mail</label><input id="hishoLoginEmail" placeholder="seu.email@empresa.com" required="" type="email"/><span class="ico">✉️</span></div>
+<div class="hisho-field"><label for="hishoLoginSenha">Senha</label><input id="hishoLoginSenha" placeholder="Digite sua senha" required="" type="password"/><span class="ico">🔒</span></div>
+<button class="hisho-auth-main-btn" type="submit">Entrar no sistema</button>
+<div class="hisho-auth-message" id="hishoLoginMsg"></div>
+<div class="hisho-auth-note">No momento, este login usa a sessão local do navegador. O cadastro de usuário já é enviado para a API informada.</div>
+</form>
+<form autocomplete="on" class="hisho-auth-form" id="hishoRegisterForm">
+<h3>Criar novo usuário</h3>
+<p class="sub">Informe nome, e-mail e senha. O cadastro será enviado ao Power Automate.</p>
+<div class="hisho-field"><label for="hishoNome">Nome</label><input id="hishoNome" minlength="2" placeholder="Nome completo" required="" type="text"/><span class="ico">👤</span></div>
+<div class="hisho-field"><label for="hishoEmail">E-mail</label><input id="hishoEmail" placeholder="seu.email@empresa.com" required="" type="email"/><span class="ico">✉️</span></div>
+<div class="hisho-field"><label for="hishoSenha">Senha</label><input id="hishoSenha" minlength="4" placeholder="Crie uma senha" required="" type="password"/><span class="ico">🔐</span></div>
+<div class="hisho-password-meter" id="hishoPasswordMeter"><span></span></div>
+<button class="hisho-auth-main-btn" id="hishoCreateUserBtn" type="submit">Criar usuário e acessar</button>
+<div class="hisho-auth-message" id="hishoRegisterMsg"></div>
+</form>
+</div>
+</section>
+</section>
+<aside aria-label="Menu lateral principal" class="komatsu-sidebar">
+<div class="komatsu-sidebar-logo">
+<img alt="Komatsu" decoding="async" fetchpriority="low" src="https://upload.wikimedia.org/wikipedia/commons/b/b7/Komatsu_company_logos.svg"/>
+</div>
+<nav aria-label="Navegação principal" class="komatsu-sidebar-nav">
+<button class="side-link active" onclick="setActiveSideLink(this); showPage('dashboard')" type="button">
+<span aria-hidden="true" class="side-svg">
+<svg viewbox="0 0 24 24"><path d="M3 10.5L12 3L21 10.5V20H15V14H9V20H3V10.5Z"></path></svg>
+</span>
+<span>Dashboard</span>
+</button>
+<button class="side-link" data-page-nav="passivo" onclick="setActiveSideLink(this); showPage('passivo')" type="button">
+<span aria-hidden="true" class="side-svg">
+<svg viewbox="0 0 24 24"><path d="M6 3H18V21H6V3Z"></path><path d="M9 7H15M9 11H15M9 15H13"></path></svg>
+</span>
+<span>Passivo</span>
+</button>
+<button class="side-link" onclick="setActiveSideLink(this); showPage('base')" type="button">
+<span aria-hidden="true" class="side-svg">
+<svg viewbox="0 0 24 24"><path d="M4 4H20L14 12V20L10 18V12L4 4Z"></path></svg>
+</span>
+<span>Karteira</span>
+</button>
+<button class="side-link" data-page-nav="riscoOtif" onclick="setActiveSideLink(this); showPage('riscoOtif')" type="button">
+<span aria-hidden="true" class="side-svg">
+<svg viewbox="0 0 24 24"><path d="M12 3 22 20H2L12 3Z"></path><path d="M12 9v5M12 17h.01"></path></svg>
+</span>
+<span>Risco OTIF</span>
+</button>
+<button class="side-link" onclick="clearCarteiraCache()" type="button">
+<span aria-hidden="true" class="side-svg">
+<svg viewbox="0 0 24 24"><path d="M3 7H21V19H3V7Z"></path><path d="M8 7V5H16V7"></path><path d="M8 12H16"></path></svg>
+</span>
+<span>Atualizar Base</span>
+</button>
+<button class="side-link" onclick="openCarteiraExportModal()" type="button">
+<span aria-hidden="true" class="side-svg">
+<svg viewbox="0 0 24 24"><path d="M12 3V16"></path><path d="M7 11L12 16L17 11"></path><path d="M4 21H20"></path></svg>
+</span>
+<span>Exportar Excel</span>
+</button>
+<button class="side-link" data-page-nav="permissoes" onclick="setActiveSideLink(this); showPage('permissoes')" type="button">
+<span aria-hidden="true" class="side-svg">
+<svg viewbox="0 0 24 24"><path d="M12 3L20 7V12C20 17 16.6 20.5 12 22C7.4 20.5 4 17 4 12V7L12 3Z"></path><path d="M9 12L11 14L15.5 9.5"></path></svg>
+</span>
+<span>Permissões</span>
+</button>
+</nav>
+<button class="komatsu-feedback" onclick="openFeedbackPanel()" type="button">Deixe seu feedback</button>
+<div class="komatsu-filter-summary">
+<strong>Filtros Aplicados:</strong>
+<div id="komatsuFilterSummary">Nenhum filtro aplicado.</div>
+</div>
+</aside>
+<div aria-atomic="true" aria-live="polite" id="toastContainer" role="status"></div>
+<div class="warning-modal-overlay" id="warningModalOverlay" onclick="closeWarningModal(event)" style="display:none;">
+<div class="warning-modal" onclick="event.stopPropagation()">
+<div class="warning-modal-head">
+<div class="warning-modal-title" id="warningModalTitle">Aviso</div>
+<button class="comment-close" onclick="closeWarningModal()">×</button>
+</div>
+<div class="warning-modal-body" id="warningModalMessage"></div>
+<div class="warning-modal-actions">
+<button onclick="closeWarningModal()">Entendi</button>
+</div>
+</div>
+</div>
+<div aria-busy="true" aria-live="polite" id="loadingOverlay" role="status">
+<div class="loading-box">
+<div class="loading-media loading-media-sequence">
+<img alt="Komatsu carregando 1" class="loading-gif loading-gif-1" onerror="this.onerror=null;this.src='./assets/img/Komatsu-Crawler-Excavator-Animated-500%20(1).gif';" src="https://github.com/tcardoso1/HishoWeb/blob/main/Komatsu-Crawler-Excavator-Animated-500%20(1).gif"/>
+<img alt="Komatsu carregando 2" class="loading-gif loading-gif-2" onerror="this.onerror=null;this.src='./assets/img/giphy.gif';" src="https://github.com/tcardoso1/HishoWeb/blob/main/giphy.gif"/>
+<img alt="Komatsu carregando 3" class="loading-gif loading-gif-3" onerror="this.onerror=null;this.src='./assets/img/Komatsu-Dump-Truck-Animation700-1.gif';" src="https://github.com/tcardoso1/HishoWeb/blob/main/Komatsu-Dump-Truck-Animation700-1.gif"/>
+</div>
+<div aria-label="Carregando" class="loading-dots">
+<span></span><span></span><span></span>
+</div>
+<div class="loading-title">Carregando carteira OTIF</div>
+<div class="loading-subtitle" id="loadingSubtitle">Buscando bases nos fluxos do Power Automate...</div>
+<div class="flow-status-list" id="flowStatusList"></div>
+</div>
+</div>
+<header role="banner">
+<div>
+<h1>Hisho Web</h1>
+<p>Análise de OTIF, atrasos, clientes, materiais e carteira financeira</p>
+<div class="status-load" id="loadStatus">Inicializando dashboard...</div>
+<div class="status-load" id="flowErrorPanel"></div>
+</div>
+<div class="actions header-preview-actions">
+<button class="preview-action" id="btnNotifications" onclick="toggleNotificationPanel()" type="button">🔔 Notificações</button>
+<button class="preview-action perfil-header-action" id="btnPerfilHeader" onclick="abrirPerfilHeader(event)" type="button">👤 Perfil</button>
+</div>
+</header>
+<aside class="komatsu-alert-panel closed" id="notificationPanel">
+<div class="komatsu-alert-title">
+<h2>Notificações</h2>
+<span onclick="toggleNotificationPanel(false)" style="font-size:22px;color:#667085;" title="Fechar notificações">×</span>
+</div>
+<div class="notification-process-list" id="notificationProcessList">
+<div class="notification-empty">
+<h4>🔔 Nenhum processo rodando</h4>
+<p>Quando uma ação em massa iniciar, ela aparecerá aqui com o progresso em tempo real.</p>
+</div>
+</div>
+</aside>
+<main id="conteudoPrincipal" tabindex="-1">
+<button class="floating-filter-btn" id="floatingFilterBtn" onclick="openFiltersDrawer()" title="Abrir filtros" type="button">
+<span class="floating-filter-icon">☰</span>
+<span class="floating-filter-label">Filtros</span>
+</button>
+<div class="filter-drawer-overlay" id="filterDrawerOverlay" onclick="closeFiltersDrawer()"></div>
+<section class="card filter-card filter-drawer" id="filterCard">
+<div class="filter-card-head">
+<div>
+<div class="filter-card-title">Filtros</div>
+<div class="filter-card-subtitle" id="filterCollapseSummary">Use os filtros para refinar gráficos e tabela.</div>
+</div>
+<button class="filter-toggle-btn" id="filterToggleBtn" onclick="closeFiltersDrawer()" title="Fechar filtros" type="button">×</button>
+</div>
+<div class="filter-body" id="filterBody">
+<div class="filters">
+<div class="filter-dropdown" data-filter="fCliente" data-label="Cliente"></div>
+<div class="filter-dropdown" data-filter="fResponsavel" data-label="Responsável"></div>
+<div class="filter-dropdown" data-filter="fStatus" data-label="Status Linha"></div>
+<div class="filter-dropdown" data-filter="fAndamento" data-label="Andamento da Linha"></div>
+<div class="filter-dropdown" data-filter="fStatusPO" data-label="Status PO"></div>
+<div class="filter-dropdown" data-filter="fOTIF" data-label="OTIF"></div>
+<div class="filter-dropdown" data-filter="fRequisitante" data-label="Requisitante"></div>
+<div class="filter-dropdown" data-filter="fOEM" data-label="OEM"></div>
+<div class="filter-dropdown" data-filter="fFaturamentoMes" data-label="Mês Faturamento"></div>
+<div class="filter-date-group">
+<div class="filter-group-title">Filtro OTIF</div>
+<div class="filter-group-subtitle">Usa OTIF Vale; se vazio, usa OTIF.</div>
+<div class="filter-date-row">
+<label>
+<span>Data inicial</span>
+<input id="fOTIFDataInicio" title="Filtro OTIF - Data inicial" type="date">
+</input></label>
+<label>
+<span>Data final</span>
+<input id="fOTIFDataFim" title="Filtro OTIF - Data final" type="date">
+</input></label>
+</div>
+</div>
+<div class="filter-date-group">
+<div class="filter-group-title">Prazo Prev. Disponibilidade</div>
+<div class="filter-group-subtitle">Filtra pelo prazo retornado na API.</div>
+<div class="filter-date-row">
+<label>
+<span>Data inicial</span>
+<input id="fPrazoPrevInicio" title="Prazo Prev. Disponibilidade - Data inicial" type="date">
+</input></label>
+<label>
+<span>Data final</span>
+<input id="fPrazoPrevFim" title="Prazo Prev. Disponibilidade - Data final" type="date">
+</input></label>
+</div>
+</div>
+<div class="filter-date-group">
+<div class="filter-group-title">Minha Previsão</div>
+<div class="filter-group-subtitle">Filtra a previsão salva nos comentários.</div>
+<div class="filter-date-row">
+<label>
+<span>Data inicial</span>
+<input id="fMinhaPrevInicio" title="Minha Previsão - Data inicial" type="date">
+</input></label>
+<label>
+<span>Data final</span>
+<input id="fMinhaPrevFim" title="Minha Previsão - Data final" type="date"/>
+</label>
+</div>
+<input class="filter-text-wide" id="fMinhaPrevBusca" placeholder="Buscar texto: Disponível, Imediato..."/>
+</div>
+<input class="filter-search-main" id="fBusca" placeholder="Buscar material, pedido..."/>
+<div class="multi-key-filter-box">
+<label for="fPedidosMassa">Filtrar vários pedidos</label>
+<small>Cole ou digite vários pedidos separados por quebra de linha, vírgula, ponto e vírgula ou espaço.</small>
+<textarea id="fPedidosMassa" oninput="applyFilters()" placeholder="Ex.:
+4513180666
+4513180777"></textarea>
+<div class="multi-key-filter-actions">
+<button class="secondary" onclick="limparFiltroTextoMassa('fPedidosMassa')" type="button">Limpar pedidos</button>
+</div>
+</div>
+<div class="multi-key-filter-box">
+<label for="fPNsMassa">Filtrar vários PNs</label>
+<small>Use o PN/material da carteira. Aceita lista por linha, vírgula, ponto e vírgula ou espaço.</small>
+<textarea id="fPNsMassa" oninput="applyFilters()" placeholder="Ex.:
+1234567
+PN-ABC-001"></textarea>
+<div class="multi-key-filter-actions">
+<button class="secondary" onclick="limparFiltroTextoMassa('fPNsMassa')" type="button">Limpar PNs</button>
+</div>
+</div>
+</div>
+<div class="filter-footer drawer-filter-footer">
+<button class="drawer-apply-btn" onclick="closeFiltersDrawer(); renderAll();" type="button">Aplicar filtros</button>
+<button class="secondary drawer-clear-btn" onclick="resetFilters()">Limpar filtros</button>
+</div>
+</div>
+</section>
+<div id="pageDashboard">
+<section class="kpis">
+<div class="card kpi">
+<div class="kpi-title-row">
+<span aria-hidden="true" class="kpi-icon lines"><svg viewbox="0 0 24 24"><rect height="16" rx="2" width="16" x="4" y="4"></rect><path d="M8 4v16M16 4v16M4 8h16M4 12h16M4 16h16"></path></svg></span>
+<div class="label">Linhas da Carteira</div>
+</div>
+<div class="value" id="kLinhas">0</div><div class="hint">Itens filtrados</div>
+</div>
+<div class="card kpi">
+<div class="kpi-title-row">
+<span aria-hidden="true" class="kpi-icon pedidos"><svg viewbox="0 0 24 24"><path d="M7 3h10a2 2 0 0 1 2 2v16l-3-2-3 2-3-2-3 2V5a2 2 0 0 1 2-2Z"></path><path d="M9 8h6M9 12h6M9 16h4"></path></svg></span>
+<div class="label">Pedidos da Carteira</div>
+</div>
+<div class="value" id="kPedidos">0</div><div class="hint">Pedidos únicos filtrados</div>
+</div>
+<div class="card kpi">
+<div class="kpi-title-row">
+<span aria-hidden="true" class="kpi-icon value"><svg viewbox="0 0 24 24"><path d="M12 2v20"></path><path d="M17 6.5c-1.1-1-2.7-1.5-4.4-1.5-2.5 0-4.6 1.2-4.6 3.3 0 4.5 9.5 2.1 9.5 7.1 0 2.1-2.1 3.6-5 3.6-2 0-3.7-.6-5-1.9"></path></svg></span>
+<div class="label">Valor Total</div>
+</div>
+<div class="value" id="kValor">R$ 0</div><div class="hint">Carteira financeira</div>
+</div>
+<div class="card kpi">
+<div class="kpi-title-row">
+<span aria-hidden="true" class="kpi-icon otif"><svg viewbox="0 0 24 24"><circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="12" r="4"></circle><path d="M12 2v3M12 19v3M2 12h3M19 12h3"></path></svg></span>
+<div class="label">OTIF Atendida</div>
+</div>
+<div class="value" id="kOTIF">0%</div><div class="hint">Performance</div>
+</div>
+<div class="card kpi">
+<div class="kpi-title-row">
+<span aria-hidden="true" class="kpi-icon days"><svg viewbox="0 0 24 24"><rect height="15" rx="2" width="16" x="4" y="5"></rect><path d="M8 3v4M16 3v4M4 10h16"></path><path d="M8 14h3M13 14h3M8 17h3"></path></svg></span>
+<div class="label">Média Dias em Aberto</div>
+</div>
+<div class="value" id="kDias">0</div><div class="hint">Média das linhas filtradas</div>
+</div>
+<div class="card kpi">
+<div class="kpi-title-row">
+<span aria-hidden="true" class="kpi-icon risk"><svg viewbox="0 0 24 24"><path d="M12 3 22 20H2L12 3Z"></path><path d="M12 9v5M12 17h.01"></path></svg></span>
+<div class="label">Valor em Risco</div>
+</div>
+<div class="value" id="kRisco">R$ 0</div><div class="hint">OTIF = NÃO</div>
+</div>
+</section>
+<section class="card passivo-dashboard-cta">
+<div>
+<h3>Relatório de NF pendentes de coleta - Passivo</h3>
+<p id="passivoDashboardResumo">Acesse a página do passivo para ver farol por dias, filtros, gráficos e principais pontos de atenção.</p>
+</div>
+<button onclick="openPassivoPage()">Abrir análise do Passivo →</button>
+</section>
+<section class="grid">
+<div class="card donut-card">
+<div class="chart-head">
+<h3>OTIF Atendida</h3>
+<button class="btn-download" onclick="downloadChartPNG('chartOTIF','otif_atendida')">Baixar PNG</button>
+</div>
+<div class="otif-body">
+<canvas id="chartOTIF"></canvas>
+</div>
+</div>
+<div class="card">
+<div class="chart-head">
+<h3>Status da Linha</h3>
+<button class="btn-download" onclick="downloadChartPNG('chartStatus','status_da_linha')">Baixar PNG</button>
+</div>
+<canvas id="chartStatus"></canvas>
+</div>
+<div class="card">
+<div class="chart-head">
+<h3>Top Materiais</h3>
+<button class="btn-download" onclick="downloadChartPNG('chartMateriais','top_materiais')">Baixar PNG</button>
+</div>
+<canvas id="chartMateriais"></canvas>
+</div>
+<div class="card">
+<div class="chart-head">
+<h3>Vencimento da OTIF por Valor</h3>
+<button class="btn-download" onclick="downloadChartPNG('chartAging','vencimento_otif_por_valor')">Baixar PNG</button>
+</div>
+<canvas id="chartAging"></canvas>
+</div>
+<div class="card wide">
+<div class="chart-head">
+<h3>Top Clientes por Valor</h3>
+<button class="btn-download" onclick="downloadChartPNG('chartClientes','top_clientes_por_valor')">Baixar PNG</button>
+</div>
+<canvas id="chartClientes"></canvas>
+</div>
+<div class="card wide dashboard-top-pedidos-card">
+<div class="chart-head">
+<h3>Top 20 pedidos por valor total</h3>
+<button class="btn-download" onclick="exportTopPedidosDashboardExcel()">Exportar Excel</button>
+</div>
+<div class="top-pedidos-summary" id="topPedidosDashboardResumo">
+<span class="top-pedidos-chip">Top 20 pedidos</span>
+<span class="top-pedidos-chip">Base filtrada</span>
+</div>
+<div class="top-pedidos-wrap">
+<table id="tableTopPedidosDashboard">
+<thead>
+<tr>
+<th>Rank</th>
+<th>Nº Pedido</th>
+<th>Valor Total</th>
+<th>Responsável</th>
+<th>Cliente</th>
+<th>Requisitante</th>
+<th>Status PO</th>
+<th>Linhas</th>
+</tr>
+</thead>
+<tbody>
+<tr><td class="top-pedidos-empty" colspan="8">Carregue a carteira para visualizar os principais pedidos.</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="card wide">
+<div class="chart-head">
+<h3>Rank por Responsável</h3>
+<button class="btn-download" onclick="downloadChartPNG('chartResponsavel','rank_por_responsavel')">Baixar PNG</button>
+</div>
+<canvas id="chartResponsavel"></canvas>
+</div>
+</section>
+</div>
+<div id="pageBase" style="display:none; margin-top:20px;">
+<section class="card">
+<div class="chart-head">
+<h3>Karteira</h3>
+<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end;">
+<button class="btn-upload-previsao" onclick="abrirUploadMinhaPrevisao()" type="button">Upload Minha Previsão</button>
+<input accept=".xlsx,.xls,.csv" id="uploadMinhaPrevisaoExcel" onchange="processarUploadMinhaPrevisaoExcel(event)" style="display:none" type="file"/>
+<button class="btn-upload-previsao" onclick="abrirUploadMesFaturamento()" type="button">Upload Mês Faturamento</button>
+<input accept=".xlsx,.xls,.csv" id="uploadMesFaturamentoExcel" onchange="processarUploadMesFaturamentoExcel(event)" style="display:none" type="file"/>
+<button class="btn-upload-previsao" onclick="openCarteiraExportModal()" type="button">Configurar Exportação</button>
+<button class="btn-upload-previsao" id="btnForceResponsaveis" onclick="forcarAtualizacaoResponsaveis()" type="button">Atualizar Responsáveis</button>
+<button class="btn-upload-previsao" onclick="limparFiltrosColunasCarteira()" type="button">Limpar filtros da tabela</button>
+<select id="fFarolOTIF" onchange="applyFilters()" style="max-width:220px;">
+<option value="">Farol OTIF</option>
+<option value="Vencidas">Vencidas</option>
+<option value="&lt;45">&lt;45 dias</option>
+<option value="45-90">45-90 dias</option>
+<option value="&gt;90">&gt;90 dias</option>
+</select>
+</div>
+</div>
+<div class="bulk-responsavel-box">
+<div class="bulk-responsavel-info">
+<b>Direcionamento em massa</b>
+<span id="bulkSelecionadosInfo">0 linha(s) selecionada(s)</span>
+</div>
+<select id="bulkResponsavelTabelaSelect">
+<option value="">Selecionar responsável/requisitante...</option>
+</select>
+<button onclick="aplicarResponsavelSelecionados()" type="button">Aplicar responsável</button>
+<div class="bulk-separator"></div>
+<select id="bulkAlteracaoTipo" onchange="toggleBulkAlteracaoCampos()" title="Tipo de alteração em massa">
+<option value="previsao">Alterar data de entrega</option>
+<option value="faturamento">Alterar previsão de faturamento</option>
+</select>
+<input id="bulkDataEntrega" title="Nova data de entrega" type="date">
+<select id="bulkMesFaturamento" style="display:none;" title="Nova previsão de faturamento">
+<option value="">Selecionar mês...</option>
+<option value="Janeiro">Janeiro</option>
+<option value="Fevereiro">Fevereiro</option>
+<option value="Março">Março</option>
+<option value="Abril">Abril</option>
+<option value="Maio">Maio</option>
+<option value="Junho">Junho</option>
+<option value="Julho">Julho</option>
+<option value="Agosto">Agosto</option>
+<option value="Setembro">Setembro</option>
+<option value="Outubro">Outubro</option>
+<option value="Novembro">Novembro</option>
+<option value="Dezembro">Dezembro</option>
+</select>
+<button onclick="aplicarAlteracaoMassaSelecionados()" type="button">Aplicar alteração</button>
+<button class="secondary" onclick="limparSelecaoCarteira()" type="button">Limpar seleção</button>
+</input></div>
+<div class="table-wrap">
+<table id="table"></table>
+</div>
+</section>
+</div>
+<div class="risco-page" id="pageRiscoOTIF">
+<section class="card risco-hero">
+<div>
+<h2>Risco OTIF</h2>
+<p>Visão preditiva para priorizar linhas com maior probabilidade de virarem OTIF perdida. O cálculo usa score por dias em aberto, status da linha, PO incompleta, disponibilidade, área responsável e PN ofensor.</p>
+</div>
+<div class="risco-actions">
+<select id="riscoFiltroClasse" onchange="renderRiscoOTIFPage()">
+<option value="">Todos os riscos</option>
+<option value="Alto">Alto risco</option>
+<option value="Médio">Médio risco</option>
+<option value="Baixo">Baixo risco</option>
+</select>
+<button onclick="exportRiscoOTIFExcel()" type="button">Exportar Risco</button>
+</div>
+</section>
+<section class="risco-kpis">
+<div class="card risco-kpi"><div class="label">🔴 Alto Risco</div><div class="value" id="rKAlto">0</div><div class="hint">Score maior ou igual a 9</div></div>
+<div class="card risco-kpi"><div class="label">🟡 Médio Risco</div><div class="value" id="rKMedio">0</div><div class="hint">Score de 5 a 8</div></div>
+<div class="card risco-kpi"><div class="label">🟢 Baixo Risco</div><div class="value" id="rKBaixo">0</div><div class="hint">Score de 0 a 4</div></div>
+<div class="card risco-kpi"><div class="label">📈 Probabilidade Média</div><div class="value" id="rKProb">0%</div><div class="hint">Média das linhas filtradas</div></div>
+<div class="card risco-kpi"><div class="label">💰 Valor em Alto Risco</div><div class="value" id="rKValorAlto">R$ 0</div><div class="hint">Soma financeira das linhas críticas</div></div>
+<div class="card risco-kpi"><div class="label">🔺 Risco Piorou</div><div class="value" id="rKPiorou">0</div><div class="hint">Score atual maior que o snapshot anterior</div></div>
+<div class="card risco-kpi"><div class="label">🟢 Risco Melhorou</div><div class="value" id="rKMelhorou">0</div><div class="hint">Score atual menor que o snapshot anterior</div></div>
+<div class="card risco-kpi"><div class="label">➖ Risco Estável/Novo</div><div class="value" id="rKEstavelNovo">0</div><div class="hint">Sem variação ou sem histórico</div></div>
+</section>
+<section class="risco-grid">
+<div class="card risco-donut-card">
+<div class="chart-head"><h3>Distribuição do Risco</h3><button class="btn-download" onclick="downloadChartPNG('chartRiscoDistribuicao','risco_otif_distribuicao')">Baixar PNG</button></div>
+<canvas id="chartRiscoDistribuicao"></canvas>
+</div>
+<div class="card risco-donut-card">
+<div class="chart-head"><h3>Tendência do Risco</h3><button class="btn-download" onclick="downloadChartPNG('chartRiscoTendencia','risco_otif_tendencia')">Baixar PNG</button></div>
+<canvas id="chartRiscoTendencia"></canvas>
+</div>
+<div class="card">
+<div class="chart-head"><h3>Risco por Área</h3><button class="btn-download" onclick="downloadChartPNG('chartRiscoArea','risco_otif_area')">Baixar PNG</button></div>
+<canvas id="chartRiscoArea"></canvas>
+</div>
+<div class="card">
+<div class="chart-head"><h3>Risco por Responsável</h3><button class="btn-download" onclick="downloadChartPNG('chartRiscoResponsavel','risco_otif_responsavel')">Baixar PNG</button></div>
+<canvas id="chartRiscoResponsavel"></canvas>
+</div>
+<div class="card">
+<div class="chart-head"><h3>Valor Financeiro em Alto Risco</h3><button class="btn-download" onclick="downloadChartPNG('chartRiscoValorArea','risco_otif_valor_area')">Baixar PNG</button></div>
+<canvas id="chartRiscoValorArea"></canvas>
+</div>
+<div class="card risco-wide">
+<div class="chart-head"><h3>Top 20 Materiais (PNs) Críticos</h3><button class="btn-download" onclick="exportRiscoOTIFMateriaisExcel()">Exportar Excel</button></div>
+<div class="risco-table-wrap"><table id="tableRiscoOTIF"></table></div>
+</div>
+<div class="card risco-wide">
+<div class="chart-head"><h3>Detalhamento de PNs em Risco por Pedido/Linha</h3><button class="btn-download" onclick="exportRiscoOTIFTodosMateriaisExcel()">Exportar Excel</button></div>
+<div class="risco-table-wrap"><table id="tableRiscoOTIFTodosPNs"></table></div>
+</div>
+<div class="card risco-wide">
+<div class="chart-head"><h3>Regras do Score Nível 1</h3></div>
+<div class="risco-rules">
+<div class="risco-rule-card"><strong>Dias em aberto</strong><span>&gt;90 dias: +3<br/>45 a 90 dias: +2<br/>&lt;45 dias: +1</span></div>
+<div class="risco-rule-card"><strong>Status da linha</strong><span>Requisição/Comprar/Produção: +3<br/>COMEX/Embarque: +2<br/>Trânsito local: +1<br/>Recebimento/Faturado: 0</span></div>
+<div class="risco-rule-card"><strong>PO e disponibilidade</strong><span>PO incompleta: +3<br/>Indisponível: +3<br/>Bloq. parcial: +2<br/>Disponível: 0</span></div>
+<div class="risco-rule-card"><strong>Área responsável</strong><span>Calculada pelo Status da Linha 2 + Invoice/Embarque<br/>Planejamento: +2<br/>Demais áreas operacionais: +1</span></div>
+<div class="risco-rule-card"><strong>Mapa de áreas</strong><span>Em Requisição / Transferir / Comprar → Planejamento<br/>Comprado sem Invoice/Embarque → Compras Internacionais<br/>Comprado com Invoice/Embarque → Comex<br/>Transferido - Em Delivery → Almoxarifado<br/>Transferido / Imediato / Alterar PN / Solicitar Via DE → Vendas Internas/Logistica<br/>Produzir HFK → Fábrica de Mangueiras<br/>Em Recebimento → Almoxarifado Local</span></div>
+<div class="risco-rule-card"><strong>PN ofensor</strong><span>PN no ranking/top ofensores: +2<br/>Demais PNs: 0</span></div>
+<div class="risco-rule-card"><strong>Classificação final</strong><span>0 a 4: Baixo<br/>5 a 8: Médio<br/>9 ou mais: Alto</span></div>
+</div>
+</div>
+</section>
+</div>
+<div class="passivo-page" id="pagePassivo" style="display:none;">
+<section class="card">
+<div class="passivo-header">
+<div>
+<h2>Passivo - Notas Fiscais Pendentes de Coleta</h2>
+<p>Farol por dias no passivo: até 15 dias = Bom, 15 a 30 = Aceitável, acima de 30 = Ruim.</p>
+</div>
+<div class="passivo-cif-actions">
+<button onclick="abrirRelatorioEnvioCliente()" type="button">📅 Relatório de Envios</button>
+<button onclick="carregarDatasCifPassivo(true)" type="button">↻ Atualizar Datas CIF</button>
+<button onclick="showPage('dashboard')">← Voltar ao Dashboard</button>
+</div>
+</div>
+<div class="passivo-filters">
+<input id="passivoBusca" oninput="applyPassivoFilters()" placeholder="Buscar NF, PO, cliente..."/>
+<select id="passivoFarol" onchange="applyPassivoFilters()"><option value="">Todos os faróis</option><option value="Ruim">Ruim &gt; 30 dias</option><option value="Aceitável">Aceitável 15 a 30 dias</option><option value="Bom">Bom até 15 dias</option></select>
+<select id="passivoCliente" onchange="applyPassivoFilters()"><option value="">Todos os clientes</option></select>
+<select id="passivoAprovacao" onchange="applyPassivoFilters()"><option value="">Status aprovação</option></select>
+<select id="passivoEnvio" onchange="applyPassivoFilters()"><option value="">Status envio</option></select>
+<input id="passivoDataCifFiltro" onchange="applyPassivoFilters()" title="Filtrar por Data Envio Cliente" type="date"/>
+<textarea class="passivo-multi-filter" id="passivoFiltroNFsMultiplas" oninput="applyPassivoFilters()" placeholder="Filtrar várias NFs
+Cole uma por linha"></textarea>
+<textarea class="passivo-multi-filter" id="passivoFiltroChavesMultiplas" oninput="applyPassivoFilters()" placeholder="Filtrar várias chaves de acesso
+Cole uma por linha"></textarea>
+<button onclick="limparFiltrosMultiplosPassivo()" type="button">Limpar filtros múltiplos</button>
+<button onclick="limparFiltroDataCifPassivo()" type="button">Limpar data envio</button>
+<div class="passivo-filter-helper">Dica: nos filtros múltiplos, cole os valores separados por quebra de linha, vírgula, ponto e vírgula, espaço ou tabulação.</div>
+</div>
+</section>
+<section class="passivo-kpis">
+<div class="card passivo-kpi"><div class="label">NFs Pendentes</div><div class="value" id="pKNotas">0</div><div class="hint">Quantidade filtrada</div></div>
+<div class="card passivo-kpi"><div class="label">Valor Bruto</div><div class="value" id="pKValor">R$ 0</div><div class="hint">Valor financeiro parado</div></div>
+<div class="card passivo-kpi"><div class="label">Farol Ruim</div><div class="value" id="pKRuim">0</div><div class="hint">Acima de 30 dias</div></div>
+<div class="card passivo-kpi"><div class="label">Média Dias</div><div class="value" id="pKMedia">0</div><div class="hint">Dias desde emissão da NF</div></div>
+<div class="card passivo-kpi"><div class="label">Regularização</div><div class="value" id="pKRegularizacao">0</div><div class="hint">NFs aguardando regularização</div></div>
+</section>
+<section class="passivo-grid">
+<div class="card">
+<div class="chart-head"><h3>Farol por Dias no Passivo</h3></div>
+<canvas id="chartPassivoFarol"></canvas>
+</div>
+<div class="card">
+<div class="chart-head"><h3>Status de Aprovação</h3></div>
+<canvas id="chartPassivoAprovacao"></canvas>
+</div>
+<div class="card">
+<div class="chart-head"><h3>Top Clientes por Valor</h3></div>
+<canvas id="chartPassivoClientes"></canvas>
+</div>
+<div class="card">
+<div class="chart-head"><h3>Pontos de Atenção</h3></div>
+<div class="passivo-attention-list" id="passivoAttentionList"></div>
+</div>
+<div class="card passivo-wide">
+<div class="chart-head"><h3>Base do Passivo</h3><button class="btn-download" onclick="exportPassivoExcel()">Exportar Passivo</button></div>
+<div class="passivo-bulk-envio-box" id="passivoBulkEnvioBox">
+<div class="passivo-bulk-envio-info">
+<strong id="passivoBulkEnvioQtd">0 nota(s) selecionada(s)</strong>
+<span>Escolha a Data Envio Cliente para sinalizar em massa.</span>
+</div>
+<input id="passivoBulkEnvioData" type="date"/>
+<button onclick="salvarDataCifPassivoEmMassa()" type="button">Salvar em massa</button>
+<button onclick="limparSelecaoPassivoEnvio()" type="button">Limpar seleção</button>
+</div>
+<div class="passivo-table-wrap"><table id="tablePassivo"></table></div>
+</div>
+</section>
+</div>
+<div class="passivo-report-modal-overlay" id="passivoRelatorioEnvioModal" onclick="fecharRelatorioEnvioCliente(event)">
+<div class="passivo-report-modal" onclick="event.stopPropagation()">
+<div class="passivo-report-head">
+<div>
+<h2>Relatório de notas por Data Envio Cliente</h2>
+<p>Filtre uma data para a outra equipe extrair as notas programadas para envio ao cliente.</p>
+</div>
+<button class="passivo-report-close" onclick="fecharRelatorioEnvioCliente()" type="button">×</button>
+</div>
+<div class="passivo-report-body">
+<div class="passivo-report-filters">
+<input id="passivoRelatorioData" onchange="renderRelatorioEnvioCliente()" type="date"/>
+<input id="passivoRelatorioBusca" oninput="renderRelatorioEnvioCliente()" placeholder="Buscar NF, pedido, cliente..."/>
+<button onclick="renderRelatorioEnvioCliente()" type="button">Filtrar</button>
+<button onclick="exportarRelatorioEnvioCliente()" type="button">Exportar Excel</button>
+</div>
+<div id="passivoRelatorioResumo" style="margin-bottom:10px;color:#667085;font-size:13px;font-weight:700;"></div>
+<div class="passivo-report-table-wrap"><table id="passivoRelatorioTabela"></table></div>
+</div>
+</div>
+</div>
+<div class="export-mask-overlay" id="carteiraExportModal" onclick="closeCarteiraExportModal(event)">
+<div class="export-mask-modal" onclick="event.stopPropagation()">
+<div class="export-mask-head">
+<div>
+<h2>Máscara de Exportação da Karteira</h2>
+<p>Escolha as colunas, organize a ordem de saída e salve como uma máscara para usar novamente.</p>
+</div>
+<button class="export-mask-close" onclick="closeCarteiraExportModal()" type="button">×</button>
+</div>
+<div class="export-mask-body">
+<div class="export-mask-top">
+<div class="export-mask-field">
+<label for="exportMaskName">Nome da máscara</label>
+<input id="exportMaskName" placeholder="Ex.: Exportação Comercial, Follow-up Cliente..."/>
+<div class="export-mask-actions">
+<button onclick="saveCarteiraExportMask()" type="button">Salvar máscara</button>
+<button class="light" onclick="resetCarteiraExportConfig()" type="button">Voltar padrão</button>
+</div>
+</div>
+<div class="export-mask-field">
+<label for="exportSavedMasks">Máscaras salvas</label>
+<select id="exportSavedMasks" onchange="loadCarteiraExportMask(this.value)"><option value="">Selecionar máscara salva...</option></select>
+<div class="export-mask-actions">
+<button class="danger" onclick="deleteCarteiraExportMask()" type="button">Excluir máscara</button>
+</div>
+</div>
+</div>
+<div class="export-mask-grid">
+<div class="export-mask-panel">
+<div class="export-mask-panel-title"><span>Colunas disponíveis</span><span class="export-mask-hint">Marque para exportar</span></div>
+<div class="export-mask-list" id="exportAvailableColumns"></div>
+</div>
+<div class="export-mask-panel">
+<div class="export-mask-panel-title"><span>Ordem da exportação</span><span class="export-mask-hint">Use ↑ ↓ para organizar</span></div>
+<div class="export-mask-list" id="exportSelectedColumns"></div>
+</div>
+</div>
+</div>
+<div class="export-mask-footer">
+<div class="export-mask-count" id="exportMaskCount">Nenhuma coluna selecionada.</div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
+<button class="light" onclick="closeCarteiraExportModal()" type="button">Cancelar</button>
+<button onclick="exportExcel()" type="button">Exportar Excel com essa máscara</button>
+</div>
+</div>
+</div>
+</div>
+<div class="permissoes-page" id="pagePermissoes" style="display:none; margin-top:20px;">
+<section class="card permissoes-hero">
+<div>
+<h2>Usuários e Permissões</h2>
+<p>Cadastre usuários, defina o perfil e marque exatamente o que cada pessoa pode acessar no Hisho Web.</p>
+</div>
+<div class="permissoes-hero-actions">
+<button onclick="openPermissaoEditor()" type="button">+ Novo usuário</button>
+<button class="secondary" onclick="addLoggedUserToPermissions()" type="button">Adicionar usuário logado</button>
+<button class="secondary" onclick="exportPermissoesJson()" type="button">Exportar JSON</button>
+</div>
+</section>
+<section class="permissoes-kpis">
+<div class="card permissao-kpi"><span>Total de usuários</span><strong id="permKTotal">0</strong></div>
+<div class="card permissao-kpi"><span>Administradores</span><strong id="permKAdmins">0</strong></div>
+<div class="card permissao-kpi"><span>Usuários ativos</span><strong id="permKAtivos">0</strong></div>
+<div class="card permissao-kpi"><span>Perfis diferentes</span><strong id="permKPerfis">0</strong></div>
+</section>
+<section class="card permissoes-card">
+<div class="permissoes-toolbar">
+<input id="permBusca" oninput="renderPermissoesTable()" placeholder="Buscar por nome, e-mail ou perfil..."/>
+<select id="permFiltroPerfil" onchange="renderPermissoesTable()">
+<option value="">Todos os perfis</option>
+<option value="Administrador">Administrador</option>
+<option value="Gestor">Gestor / Liderança</option>
+<option value="Responsável da Carteira">Responsável da Carteira</option>
+<option value="Operacional">Usuário Operacional</option>
+<option value="Visualizador">Visualizador</option>
+<option value="Suporte / TI">Suporte / TI</option>
+</select>
+<select id="permFiltroStatus" onchange="renderPermissoesTable()">
+<option value="">Todos os status</option>
+<option value="Ativo">Ativo</option>
+<option value="Inativo">Inativo</option>
+</select>
+</div>
+<div class="permissoes-table-wrap">
+<table id="permissoesTable"></table>
+</div>
+</section>
+</div>
+<div class="permissao-drawer-overlay" id="permissaoDrawerOverlay" onclick="closePermissaoEditor()"></div>
+<aside aria-hidden="true" class="permissao-drawer" id="permissaoDrawer">
+<div class="permissao-drawer-head">
+<div>
+<h2 id="permissaoDrawerTitle">Novo usuário</h2>
+<p>Escolha um perfil pronto ou ajuste permissão por permissão.</p>
+</div>
+<button onclick="closePermissaoEditor()" type="button">×</button>
+</div>
+<div class="permissao-form-grid">
+<label>Nome
+      <input id="permNome" placeholder="Nome completo"/>
+</label>
+<label>E-mail
+      <input id="permEmail" placeholder="email@empresa.com" type="email"/>
+</label>
+<label>Perfil
+      <select id="permPerfil" onchange="applyPermissaoProfile(this.value)">
+<option value="Administrador">Administrador</option>
+<option value="Gestor">Gestor / Liderança</option>
+<option value="Responsável da Carteira">Responsável da Carteira</option>
+<option value="Operacional">Usuário Operacional</option>
+<option value="Visualizador">Visualizador</option>
+<option value="Suporte / TI">Suporte / TI</option>
+</select>
+</label>
+<label>Status
+      <select id="permStatus">
+<option value="Ativo">Ativo</option>
+<option value="Inativo">Inativo</option>
+</select>
+</label>
+</div>
+<div class="permissoes-checklist" id="permissoesChecklist"></div>
+<div class="permissao-drawer-footer">
+<button class="secondary" onclick="closePermissaoEditor()" type="button">Cancelar</button>
+<button onclick="savePermissaoUsuario()" type="button">Salvar permissões</button>
+</div>
+</aside>
+</main>
+<!-- =========================================================
+     JS / módulo funcional: script-aplicacao
+     ========================================================= -->
+<script src="assets/js/modules/05-inline-script-05.js"></script>
+<div class="comment-modal-overlay" id="commentModalOverlay" onclick="closeCommentModal(event)">
+<div class="comment-modal">
+<div class="comment-sidebar">
+<div class="comment-title">Detalhes da Linha</div>
+<div class="comment-subtitle" id="commentModalSubtitle"></div>
+<div class="comment-meta" id="commentMeta" style="margin-top:20px"></div>
+</div>
+<div class="comment-content">
+<div class="comment-header">
+<div>
+<div class="comment-title">Comentários</div>
+<div class="comment-subtitle">Histórico da linha selecionada</div>
+</div>
+<div style="display:flex;gap:8px;align-items:center;"><button class="comment-refresh" onclick="window.atualizarComentariosModal(this)">Atualizar comentários</button><button class="comment-close" onclick="closeCommentModal()">×</button></div>
+</div>
+<div class="comment-chat" id="commentChat">
+<div class="comment-empty">Nenhum comentário ainda.</div>
+</div>
+<div class="comment-input">
+<input id="commentUser" placeholder="Seu nome" type="text"/>
+<textarea id="commentText" placeholder="Digite um comentário..."></textarea>
+<div style="display:flex;justify-content:flex-end">
+<button onclick="sendLineComment()">Enviar comentário</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- =========================================================
+     JS / módulo funcional: modal-comments-script
+     ========================================================= -->
+<script src="assets/js/modules/06-modal-comments-script.js"></script>
+<!-- =========================================================
+     JS / módulo funcional: upload-minha-previsao-massa-script
+     ========================================================= -->
+<script src="assets/js/modules/07-upload-minha-previsao-massa-script.js"></script>
+<!-- =========================================================
+     JS / módulo funcional: upload-mes-faturamento-massa-script
+     ========================================================= -->
+<script src="assets/js/modules/08-upload-mes-faturamento-massa-script.js"></script>
+<!-- =========================================================
+     JS / módulo funcional: comentarios-expose-functions-fix
+     ========================================================= -->
+<script src="assets/js/patches/09-comentarios-expose-functions-fix.js"></script>
+<!-- =========================================================
+     JS / módulo funcional: auto-refresh-comments-10s-corrigido
+     ========================================================= -->
+<script src="assets/js/modules/10-auto-refresh-comments-10s-corrigido.js"></script>
+<!-- =========================================================
+     JS / módulo funcional: comentarios-refresh-global-fix
+     ========================================================= -->
+<script src="assets/js/patches/11-comentarios-refresh-global-fix.js"></script>
+<div class="responsavel-confirm-overlay" id="responsavelConfirmOverlay">
+<div aria-modal="true" class="responsavel-confirm-modal" role="dialog">
+<div class="responsavel-confirm-head">
+<div class="responsavel-confirm-icon">⇄</div>
+<div>
+<h3 class="responsavel-confirm-title" id="responsavelConfirmTitle">Confirmar direcionamento</h3>
+<div class="responsavel-confirm-subtitle" id="responsavelConfirmMessage"></div>
+</div>
+</div>
+<div class="responsavel-confirm-body">
+<div class="responsavel-target-card">
+<div class="responsavel-target-label">Responsável de destino</div>
+<div class="responsavel-target-name" id="responsavelConfirmName"></div>
+<div class="responsavel-target-meta" id="responsavelConfirmMeta"></div>
+</div>
+</div>
+<div class="responsavel-confirm-actions">
+<button class="responsavel-confirm-cancel" id="responsavelConfirmCancel" type="button">Cancelar</button>
+<button class="responsavel-confirm-ok" id="responsavelConfirmOk" type="button">Confirmar</button>
+</div>
+</div>
+</div>
+<!-- =========================================================
+     JS / módulo funcional: responsavel-modal-transferencia-script
+     ========================================================= -->
+<script src="assets/js/modules/12-responsavel-modal-transferencia-script.js"></script>
+<!-- =========================================================
+     JS / módulo funcional: fix-definitivo-lista-responsaveis
+     ========================================================= -->
+<script src="assets/js/patches/13-fix-definitivo-lista-responsaveis.js"></script>
+<!-- =========================================================
+     JS / módulo funcional: filtro-sem-responsavel-script
+     ========================================================= -->
+<script src="assets/js/modules/14-filtro-sem-responsavel-script.js"></script>
+<!-- =========================================================
+     JS / módulo funcional: hisho-auth-login-script
+     ========================================================= -->
+<script src="assets/js/modules/15-hisho-auth-login-script.js"></script>
+<!-- =========================================================
+     JS / módulo funcional: script-aplicacao
+     ========================================================= -->
+<script src="assets/js/modules/16-inline-script-16.js"></script>
+<!-- =========================================================
+     JS / módulo funcional: script-aplicacao
+     ========================================================= -->
+<script src="assets/js/modules/17-inline-script-17.js"></script>
+<!-- =========================================================
+     JS / módulo funcional: perfil-login-clean-script
+     ========================================================= -->
+<script src="assets/js/modules/18-perfil-login-clean-script.js"></script>
+<!-- =========================================================
+     JS / módulo funcional: hide-auth-render-chip-safe
+     ========================================================= -->
+<script src="assets/js/modules/19-hide-auth-render-chip-safe.js"></script>
+<!-- =========================================================
+     JS / módulo funcional: fix-login-dashboard-redirect
+     ========================================================= -->
+<script src="assets/js/patches/20-fix-login-dashboard-redirect.js"></script>
+<!-- =========================================================
+     JS / módulo funcional: fix-criar-usuario-tabs-e-cadastro
+     ========================================================= -->
+<script src="assets/js/patches/21-fix-criar-usuario-tabs-e-cadastro.js"></script>
+<!-- =========================================================
+     JS / módulo funcional: fix-perfil-ao-lado-notificacao-final
+     ========================================================= -->
+<script src="assets/js/patches/22-fix-perfil-ao-lado-notificacao-final.js"></script>
+<!-- PATCH FINAL: remove botão duplicado de perfil e mantém somente o perfil ao lado direito das notificações -->
+<!-- =========================================================
+     CSS / módulo visual: patch-perfil-unico-header-style
+     ========================================================= -->
+
+<!-- =========================================================
+     JS / módulo funcional: patch-perfil-unico-header-script
+     ========================================================= -->
+<script src="assets/js/patches/23-patch-perfil-unico-header-script.js"></script>
+<!-- PATCH FINAL: carregar dados reais no modal de perfil -->
+<!-- =========================================================
+     JS / módulo funcional: patch-carregar-dados-perfil-final
+     ========================================================= -->
+<script src="assets/js/patches/24-patch-carregar-dados-perfil-final.js"></script>
+<!-- =========================================================
+     JS / módulo funcional: script-aplicacao
+     ========================================================= -->
+<script src="assets/js/modules/25-inline-script-25.js"></script>
+<!-- =========================================================
+     JS / módulo funcional: remove-continuar-sem-login-e-exigir-token
+     ========================================================= -->
+<script src="assets/js/modules/26-remove-continuar-sem-login-e-exigir-token.js"></script>
+<!-- =========================================================
+     JS / módulo funcional: script-aplicacao
+     ========================================================= -->
+<script src="assets/js/modules/27-inline-script-27.js"></script>
+<!-- =========================================================
+     JS / módulo funcional: background-process-notifications-script
+     ========================================================= -->
+<script src="assets/js/modules/28-background-process-notifications-script.js"></script>
+<!-- ===== Minha Previsão 100% via API (sem localStorage) ===== -->
+<!-- =========================================================
+     JS / módulo funcional: minha-previsao-api-sem-localstorage
+     ========================================================= -->
+<script src="assets/js/modules/29-minha-previsao-api-sem-localstorage.js"></script>
+<!-- ===== Fim Minha Previsão API ===== -->
+<!-- ===== Correção: renderização Minha Previsão + Mês Faturamento via API ===== -->
+<!-- =========================================================
+     JS / módulo funcional: fix-render-previsao-faturamento-api
+     ========================================================= -->
+<script src="assets/js/patches/30-fix-render-previsao-faturamento-api.js"></script>
+<!-- ===== Fim correção renderização APIs ===== -->
+<!-- ===== Fix filtro Mês Faturamento: comparação normalizada ===== -->
+<!-- =========================================================
+     JS / módulo funcional: fix-filtro-mes-faturamento-normalizado
+     ========================================================= -->
+<script src="assets/js/patches/31-fix-filtro-mes-faturamento-normalizado.js"></script>
+<!-- PATCH: botão de filtros no header mobile + farol OTIF no padrão do Passivo -->
+<!-- =========================================================
+     CSS / módulo visual: mobile-filter-header-and-farol-passivo-style
+     ========================================================= -->
+
+<!-- =========================================================
+     JS / módulo funcional: mobile-filter-header-button-script
+     ========================================================= -->
+<script src="assets/js/modules/32-mobile-filter-header-button-script.js"></script>
+<!-- ===== PATCH FINAL: Mês Faturamento API SharePoint + chave PO-Linha canônica ===== -->
+<!-- =========================================================
+     JS / módulo funcional: patch-final-mes-faturamento-sharepoint
+     ========================================================= -->
+<script src="assets/js/patches/33-patch-final-mes-faturamento-sharepoint.js"></script>
+<!-- ===== FIM PATCH FINAL ===== -->
+<script src="assets/js/modules/34-permissoes-admin-script.js"></script>
+
+<script src="assets/js/modules/35-risco-otif-excel-filters-script.js"></script>
+<!-- =========================================================
+     PATCH: Limpar filtros das tabelas de Risco OTIF
+     ========================================================= -->
+
+<script src="assets/js/patches/36-patch-limpar-filtros-risco-otif-script.js"></script>
+<!-- FIX 2026-07-01: Responsáveis aceitam PO-Linha/Title invertidos e ordenam DtAtualização MM/DD corretamente. -->
+<!-- =========================================================
+     JS / módulo funcional: auto-atualizacao-logout-inatividade
+     ========================================================= -->
+<script src="assets/js/modules/37-auto-atualizacao-logout-inatividade.js"></script>
+<!-- =========================================================
+     PATCH CRÍTICO: AuthGuard bloqueante - não deixa o Hisho abrir deslogado
+     ========================================================= -->
+
+<script src="assets/js/patches/38-hisho-auth-guard-hard-final.js"></script>
+<!-- =========================================================
+     PATCH FINAL REAL: Bloqueio total sem sessão válida
+     - exige token + email + sessão criada pelo login atual
+     - remove sessões antigas/stale que deixavam o dashboard abrir
+     ========================================================= -->
+
+<script src="assets/js/patches/39-hisho-auth-guard-final-real-script.js"></script>
+<!-- ===== PATCH FINAL: Corrige transição login -> loading das bases ===== -->
+<script src="assets/js/patches/40-patch-final-login-para-loading-bases.js"></script>
+<!-- ===== FIM PATCH FINAL: Corrige transição login -> loading das bases ===== -->
+<!-- ===== PATCH: Nome real do usuário no perfil/header ===== -->
+<script src="assets/js/patches/41-patch-nome-real-usuario-perfil.js"></script>
+<!-- ===== FIM PATCH: Nome real do usuário no perfil/header ===== -->
+<!-- Estrutura corrigida: os patches finais permanecem dentro do body. -->
+<!-- PATCH: histórico completo de notificações + erros detalhados + limpar histórico -->
+<!-- =========================================================
+     CSS / módulo visual: notificacoes-historico-completo-style
+     ========================================================= -->
+
+<!-- =========================================================
+     JS / módulo funcional: notificacoes-historico-completo-script
+     ========================================================= -->
+<script src="assets/js/modules/42-notificacoes-historico-completo-script.js"></script>
+<!-- PATCH: otimização mobile/responsiva para uso em celular e desktop -->
+<!-- =========================================================
+     CSS / módulo visual: mobile-ux-optimization-style
+     ========================================================= -->
+
+<!-- =========================================================
+     JS / módulo funcional: mobile-ux-optimization-script
+     ========================================================= -->
+<script src="assets/js/modules/43-mobile-ux-optimization-script.js"></script>
+<!-- PATCH FINAL: remover botão flutuante de filtros no mobile e deixar somente a lupa -->
+<!-- =========================================================
+     CSS / módulo visual: patch-final-mobile-remove-floating-filter
+     ========================================================= -->
+
+<!-- PATCH PERFORMANCE: otimização geral sem remover funcionalidades -->
+<!-- =========================================================
+     CSS / módulo visual: patch-performance-css
+     ========================================================= -->
+
+<!-- =========================================================
+     JS / módulo funcional: patch-performance-js
+     ========================================================= -->
+<script src="assets/js/patches/44-patch-performance-js.js"></script>
+<!-- =========================================================
+     CSS / módulo visual: feedback-panel-api-style
+     ========================================================= -->
+
+<div class="feedback-panel-overlay" id="feedbackPanelOverlay" onclick="closeFeedbackPanel(event)">
+<aside aria-label="Painel de feedback" class="feedback-panel" onclick="event.stopPropagation()">
+<div class="feedback-panel-head">
+<div>
+<h2 class="feedback-panel-title">Feedback</h2>
+<div class="feedback-panel-subtitle">Envie sugestões, elogios, reclamações ou bugs. A lista abaixo mostra apenas os feedbacks do usuário logado.</div>
+</div>
+<button class="feedback-close" onclick="closeFeedbackPanel()" type="button">×</button>
+</div>
+<div class="feedback-panel-body">
+<section class="feedback-form-card">
+<h3>Novo feedback</h3>
+<div class="feedback-field">
+<label for="feedbackTipo">Tipo de feedback</label>
+<select id="feedbackTipo">
+<option value="Sugestão de melhoria">Sugestão de melhoria</option>
+<option value="Elogio">Elogio</option>
+<option value="Reclamação">Reclamação</option>
+<option value="Erro/Bug">Erro/Bug</option>
+<option value="Dúvida">Dúvida</option>
+</select>
+</div>
+<div class="feedback-field">
+<label for="feedbackTexto">Feedback</label>
+<textarea id="feedbackTexto" placeholder="Descreva aqui seu feedback..."></textarea>
+</div>
+<div class="feedback-field">
+<label for="feedbackFlag">Status</label>
+<select id="feedbackFlag">
+<option value="Aguardando">Aguardando</option>
+<option value="Em andamento">Em andamento</option>
+<option value="Concluído">Concluído</option>
+</select>
+</div>
+<button class="feedback-send-btn" id="feedbackSendBtn" onclick="sendFeedbackApi()" type="button">Enviar feedback</button>
+<div class="feedback-status-line" id="feedbackSendStatus"></div>
+</section>
+<section class="feedback-history-card">
+<h3>Meus feedbacks</h3>
+<div class="feedback-list" id="feedbackList">
+<div class="feedback-empty">Abra esta aba para carregar seus feedbacks.</div>
+</div>
+</section>
+</div>
+</aside>
+</div>
+<!-- =========================================================
+     JS / módulo funcional: feedback-panel-api-script
+     ========================================================= -->
+<script src="assets/js/modules/45-feedback-panel-api-script.js"></script>
+<!-- =========================================================
+     PATCH FINAL - Risco OTIF: renderização estável após filtros
+     Mantém Distribuição/Tendência como donuts lado a lado e barras em linha inteira
+     ========================================================= -->
+
+<script src="assets/js/patches/46-patch-risco-otif-render-filtros-final.js"></script>
+<!-- PATCH: Segunda tabela por linhas únicas + Linhas afetadas = total de linhas do pedido + visual Karteira -->
+
+<script src="assets/js/patches/47-risco-otif-pns-linhas-unicas-patch.js"></script>
+<script src="assets/js/patches/48-risco-otif-pedido-linha-count-fix.js"></script>
+<!-- PATCH: Valor líquido acima das barras nos gráficos de Risco OTIF -->
+<script src="assets/js/modules/49-risco-otif-valor-liquido-acima-barras.js"></script>
+<!-- ===== PATCH FINAL: Minha Previsão pela API ao atualizar base ===== -->
+<script src="assets/js/patches/50-patch-final-minha-previsao-api-atualiza-base.js"></script>
+<!-- ===== FIM PATCH FINAL: Minha Previsão pela API ao atualizar base ===== -->
+<!-- =========================================================
+     JS / módulo funcional: auth-guard-verificacao-login-final
+     ========================================================= -->
+<script src="assets/js/patches/51-auth-guard-verificacao-login-final.js"></script>
+<!-- ===== PATCH: Login rápido + carregamento das bases somente após login ===== -->
+<script src="assets/js/patches/52-patch-login-rapido-carregamento-pos-login.js"></script>
+<!-- ===== FIM PATCH: Login rápido + carregamento das bases somente após login ===== -->
+<!-- ===== PATCH FINAL: Perfil preservado após logout automático ===== -->
+<script src="assets/js/patches/53-patch-final-perfil-pos-logout-automatico.js"></script>
+<!-- ===== FIM PATCH FINAL: Perfil preservado após logout automático ===== -->
+<!-- ===== PATCH FINAL: Perfil sempre vinculado ao e-mail logado ===== -->
+<script src="assets/js/patches/54-patch-final-perfil-vinculado-email-logado.js"></script>
+<!-- ===== FIM PATCH FINAL: Perfil sempre vinculado ao e-mail logado ===== -->
+<!-- ===== PATCH FINAL: Corrige aba Criar usuário substituída pelo nome do perfil ===== -->
+<script src="assets/js/patches/55-patch-final-auth-tabs-nao-usar-perfil.js"></script>
+<!-- ===== FIM PATCH FINAL: Corrige aba Criar usuário substituída pelo nome do perfil ===== -->
+<!-- =========================================================
+     CSS / acessibilidade e performance final
+     ========================================================= -->
+
+<!-- =========================================================
+     JS / patch final de acessibilidade e microperformance
+     ========================================================= -->
+<script src="assets/js/modules/56-a11y-performance-final-script.js"></script>
+<script src="assets/js/core/pwa-install.js"></script>
+</body>
+</html>
