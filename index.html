@@ -6978,23 +6978,12 @@ window.USER_DATA_API_URL = USER_DATA_API_URL;
 
 const CARTEIRA_API_URLS = [
   {
-    nome: 'Carajás',
-    url: 'https://905143a43ca6eba28bf3e05b636fc5.bd.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/0a23753aefa942069436f554d598e14a/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=AnQ7iA9fzYrfpOjxZgb2pI94L_VT7TbzBr6YnttSNgc'
-  },
-  {
-    nome: 'SSGOS11D',
-    url: 'https://905143a43ca6eba28bf3e05b636fc5.bd.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/aac54e89c5a5485a9659f469c3bb3ebe/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=U-FrqkyRE8XycgRzJTkHepK_i2kW8AW61YEGdQNuWMY'
-  },
-  {
-    nome: 'Salobo',
-    url: 'https://905143a43ca6eba28bf3e05b636fc5.bd.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/8c9c85f4fd0a43828a06be7b93e534c6/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=B_77tPtCtuoCv0v9muA5LI1e3YCGqK9Lsp1zXmoLQmk'
-  },
-  {
-    nome: 'Outros',
-    url: 'https://905143a43ca6eba28bf3e05b636fc5.bd.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/8f994c0df354432ca167596206a57e7a/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=rhRDrP8T7NM_3c7K9O3qfbU0eTN_b9s7B7guGOlm80Y'
+    nome: 'Carteira Geral',
+    url: 'https://905143a43ca6eba28bf3e05b636fc5.bd.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/21/workflows/f7b7294b706b41e5b75c898f41f6e47a/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=HjNvFdA5FP6lwfBxDyczVyip_ulB3XGw7PohSRJR7tE'
   }
-
 ];
+
+const OTIF_VALE_API_URL = 'https://905143a43ca6eba28bf3e05b636fc5.bd.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/27/workflows/47ed437a26744bdda3884460f8201dd3/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=Qi-kbhG-KEtmj6PtIcfflhWGh0H9hCF5euT2e-DTJ3c';
 
 const RESPONSAVEL_ATRIBUIR_API_URL = 'https://905143a43ca6eba28bf3e05b636fc5.bd.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/978a8cba7d3b44e08fa9f1fcf39ff896/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=3-XeZ3O4LlePxa92f9tB7CBF5SRlx5JV7FaSNH7P7qA';
 const RESPONSAVEL_HISTORICO_API_URL = 'https://905143a43ca6eba28bf3e05b636fc5.bd.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/8ad1108319464a97bd39befbaa072496/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=VycWR2Hfr4wqwissXD0buhb0Li05uRuVPjHHk3oOOoo';
@@ -7944,17 +7933,20 @@ function showLoadingOverlay(){
   if(overlay) overlay.style.display = 'flex';
 
   if(list){
-    list.innerHTML = CARTEIRA_API_URLS
-      .filter(f => f.url && !f.url.includes('COLE_AQUI'))
-      .map(f => `
-        <div class="flow-status-item loading" id="flowStatus_${slugFlowName(f.nome)}">
-          <span class="flow-dot"></span>
-          <div>
-            <div class="flow-name">${escapeHtml(f.nome)}</div>
-            <div class="flow-msg">Aguardando...</div>
-          </div>
+    const fontesLoading = [
+      ...CARTEIRA_API_URLS.filter(f => f.url && !f.url.includes('COLE_AQUI')),
+      { nome:'OTIF Vale', url:OTIF_VALE_API_URL }
+    ];
+
+    list.innerHTML = fontesLoading.map(f => `
+      <div class="flow-status-item loading" id="flowStatus_${slugFlowName(f.nome)}">
+        <span class="flow-dot"></span>
+        <div>
+          <div class="flow-name">${escapeHtml(f.nome)}</div>
+          <div class="flow-msg">Aguardando...</div>
         </div>
-      `).join('');
+      </div>
+    `).join('');
   }
 }
 
@@ -8007,10 +7999,16 @@ async function fetchCarteiraFonte(fonte){
       `${rows.length.toLocaleString('pt-BR')} linhas em ${((performance.now()-inicio)/1000).toFixed(1)}s`
     );
 
-    return rows.map(r => ({
-      ...r,
-      __FonteFluxo: fonte.nome
-    }));
+    return rows.map(r => {
+      // A API Geral retorna nomes compactos (pedido, material, cliente etc.).
+      // Normaliza imediatamente para os nomes internos usados pelo Hisho,
+      // antes da deduplicação e da validação das linhas.
+      const normalizada = (typeof normalizeRow === 'function') ? normalizeRow(r) : r;
+      return {
+        ...normalizada,
+        __FonteFluxo: fonte.nome
+      };
+    });
   }
   catch(error){
     console.error(`[ERRO NO FLUXO ${fonte.nome}]`, error);
@@ -8020,6 +8018,91 @@ async function fetchCarteiraFonte(fonte){
 }
 
 
+
+
+async function fetchOtifValeRows(){
+  const nome = 'OTIF Vale';
+  const inicio = performance.now();
+  updateFlowStatus(nome,'loading','Carregando...');
+
+  try{
+    const response = await fetch(OTIF_VALE_API_URL, {
+      method:'GET',
+      cache:'no-store',
+      headers:{ Accept:'application/json' }
+    });
+
+    if(!response.ok){
+      const errorText = await response.text().catch(()=>'');
+      throw new Error(`${nome}: Erro HTTP ${response.status} ${errorText}`);
+    }
+
+    const texto = await response.text();
+    let payload = [];
+    try{
+      payload = texto ? JSON.parse(texto) : [];
+    }catch(error){
+      throw new Error('OTIF Vale retornou conteúdo que não é JSON válido.');
+    }
+
+    const rows = extractRowsFromResponse(payload);
+    updateFlowStatus(nome,'success',`${rows.length.toLocaleString('pt-BR')} registros em ${((performance.now()-inicio)/1000).toFixed(1)}s`);
+    return rows;
+  }catch(error){
+    console.error('[ERRO OTIF VALE]', error);
+    updateFlowStatus(nome,'error',error.message || 'Falha ao carregar');
+    throw error;
+  }
+}
+
+function getOtifValePOLinha(item){
+  return normalizePOLinhaKey(
+    item?.['PO - Linha'] ??
+    item?.['PO-Linha'] ??
+    item?.['PO Linha'] ??
+    item?.POLinha ??
+    item?.PoLinha ??
+    item?.poLinha ??
+    ''
+  );
+}
+
+function getOtifValeExpectedDate(item){
+  return item?.EXPECTED_DATE ?? item?.ExpectedDate ?? item?.expectedDate ?? item?.['Expected Date'] ?? '';
+}
+
+function aplicarOtifValeNasLinhas(carteiraRows, otifRows){
+  const mapa = new Map();
+  let registrosValidos = 0;
+
+  (otifRows || []).forEach(item => {
+    const chave = getOtifValePOLinha(item);
+    const data = getOtifValeExpectedDate(item);
+    if(!chave || data === null || data === undefined || String(data).trim() === '') return;
+    mapa.set(chave, data);
+    registrosValidos++;
+  });
+
+  let encontrados = 0;
+  const linhas = (carteiraRows || []).map(row => {
+    const chave = getPOLinha(row) || normalizePOLinhaKey(row?.PoLinha || row?.poLinha || '');
+    const valor = chave ? mapa.get(chave) : undefined;
+    if(valor !== undefined){
+      encontrados++;
+      return { ...row, 'OTIF Vale': valor, __OtifValeEncontrada:true };
+    }
+    return { ...row, 'OTIF Vale': row?.['OTIF Vale'] ?? '', __OtifValeEncontrada:false };
+  });
+
+  window.__otifValeStats = {
+    recebidos:(otifRows || []).length,
+    validos:registrosValidos,
+    encontrados,
+    semCorrespondencia:Math.max(0,(carteiraRows || []).length-encontrados)
+  };
+  console.log('Cruzamento OTIF Vale:', window.__otifValeStats);
+  return linhas;
+}
 
 function normalizeForDedupe(value){
   if(value === null || value === undefined) return '';
@@ -8413,9 +8496,10 @@ async function loadCarteira(options = {}){
       loadStatus.innerText = `Carregando ${fontesValidas.length} fluxos diretamente da API...`;
     }
 
-    const resultados = await Promise.allSettled(
-      fontesValidas.map(fetchCarteiraFonte)
-    );
+    const [resultados, resultadoOtifVale] = await Promise.all([
+      Promise.allSettled(fontesValidas.map(fetchCarteiraFonte)),
+      Promise.allSettled([fetchOtifValeRows()])
+    ]);
 
     window.__fluxosFalhos = resultados
       .map((r,index)=>({
@@ -8448,12 +8532,25 @@ async function loadCarteira(options = {}){
       throw new Error('Nenhum fluxo retornou linhas válidas. ' + erros.join(' | '));
     }
 
-    const dadosUnicos = dedupeRowsByKey(dados);
+    const dadosUnicosSemOtif = dedupeRowsByKey(dados);
+    const otifValeRows = resultadoOtifVale[0]?.status === 'fulfilled'
+      ? resultadoOtifVale[0].value
+      : [];
+
+    if(resultadoOtifVale[0]?.status === 'rejected'){
+      const erroOtif = resultadoOtifVale[0].reason?.message || String(resultadoOtifVale[0].reason || 'Falha desconhecida');
+      console.warn('A carteira será carregada sem OTIF Vale:', erroOtif);
+      notifyUser?.('A carteira foi carregada, mas a API de OTIF Vale falhou. Será usada a OTIF comum como fallback.', 'warning', 'OTIF Vale');
+    }
+
+    const dadosUnicos = aplicarOtifValeNasLinhas(dadosUnicosSemOtif, otifValeRows);
 
     await loadResponsaveisHistorico();
     applyResponsavelFallbackToRows(dadosUnicos);
 
     EMBEDDED_DATA = dadosUnicos;
+    // Expõe a base também no objeto window para os módulos adicionados posteriormente.
+    window.EMBEDDED_DATA = EMBEDDED_DATA;
 
     console.log('Linhas recebidas no total bruto da API:', dados.length);
     console.log('Linhas usadas no dashboard após deduplicação:', EMBEDDED_DATA.length);
@@ -8472,7 +8569,8 @@ async function loadCarteira(options = {}){
         ? ` Atenção: ${window.__fluxosFalhos.length} fluxo(s) falharam; a base mostra somente o que a API retornou agora.`
         : '';
 
-      loadStatus.innerText = `Base carregada diretamente da API: ${EMBEDDED_DATA.length.toLocaleString('pt-BR')} linhas. DtAtualização: ${dtTxt}.${avisoFalhas}`;
+      const otifEncontradas = window.__otifValeStats?.encontrados || 0;
+      loadStatus.innerText = `Base geral carregada: ${EMBEDDED_DATA.length.toLocaleString('pt-BR')} linhas. OTIF Vale vinculada em ${otifEncontradas.toLocaleString('pt-BR')} linhas. DtAtualização: ${dtTxt}.${avisoFalhas}`;
     }
 
     setTimeout(hideLoadingOverlay, window.__fluxosFalhos?.length ? 2500 : 900);
@@ -8598,11 +8696,11 @@ document.getElementById('fBusca').addEventListener('input',applyFilters);
 function isValidCarteiraRow(row){
   if(!row) return false;
 
-  const pedido = String(row[COLS.pedido] || row['Pedido'] || row['Nº Pedido'] || '').trim();
-  const material = String(row[COLS.material] || '').trim();
-  const cliente = String(row[COLS.cliente] || '').trim();
-  const requisitante = String(row[COLS.requisitante] || '').trim();
-  const denominacao = String(row[COLS.denominacao] || '').trim();
+  const pedido = String(row[COLS.pedido] || row['Pedido'] || row['Nº Pedido'] || row.pedido || '').trim();
+  const material = String(row[COLS.material] || row.material || '').trim();
+  const cliente = String(row[COLS.cliente] || row.cliente || '').trim();
+  const requisitante = String(row[COLS.requisitante] || row.requisitante || '').trim();
+  const denominacao = String(row[COLS.denominacao] || row.denominacao || '').trim();
 
   // Linha real precisa ter pelo menos pedido ou material,
   // e também algum dado de negócio além do metadado do fluxo.
@@ -8613,10 +8711,19 @@ function isValidCarteiraRow(row){
 }
 
 function loadEmbeddedData(){
-  rawData = EMBEDDED_DATA
+  const normalizadas = EMBEDDED_DATA
     .map(normalizeRow)
-    .map(cleanRow)
-    .filter(isValidCarteiraRow);
+    .map(cleanRow);
+
+  rawData = normalizadas.filter(isValidCarteiraRow);
+
+  console.log('[Normalização API Geral]', {
+    recebidas: EMBEDDED_DATA.length,
+    normalizadas: normalizadas.length,
+    validas: rawData.length,
+    descartadas: normalizadas.length - rawData.length,
+    primeiraLinha: normalizadas[0] || null
+  });
 
   if(document.getElementById('fFarolOTIF')){
     document.getElementById('fFarolOTIF').value = '';
@@ -8739,6 +8846,40 @@ function normalizeRow(row){
       normalized['Responsável'] = row[k];
     }
   });
+
+  // Mapeia o JSON compacto da API geral para os nomes de colunas já usados pelo Hisho.
+  const compactMap = {
+    'PoLinha':'POLinha',
+    'poLinha':'POLinha',
+    'pedido':'Nºpedido',
+    'itemPedido':'Item do Pedido',
+    'material':'Material',
+    'denominacao':'Denominação',
+    'quantidadeAberta':'Quantidade (Aberto)',
+    'precoLiquidoTotal':'Preço líquido Total',
+    'statusLinha':'Status da Linha 2',
+    'andamento':'Status Linha OV',
+    'statusPO':'Status OV',
+    'prazoPrevisto':'Prazo Prev. Disponibilidade',
+    'otif':'OTIF',
+    'otifAtendida':'OTIF Atendida',
+    'cliente':'Cliente Abreviado',
+    'oem':'OEM',
+    'embarque':'Embarque',
+    'invoice':'Invoice',
+    'rankRegiao':'Rank Região',
+    'diasEmAberto':'Dias em Aberto'
+  };
+
+  Object.entries(compactMap).forEach(([origem,destino])=>{
+    if((normalized[destino] === undefined || normalized[destino] === null || normalized[destino] === '') && normalized[origem] !== undefined){
+      normalized[destino] = normalized[origem];
+    }
+  });
+
+  if(!normalized.POLinha){
+    normalized.POLinha = normalized.PoLinha || normalized.poLinha || '';
+  }
 
   return normalized;
 }
