@@ -6264,6 +6264,12 @@ body.hisho-auth-force-lock header,
 </span>
 <span>Risco OTIF</span>
 </button>
+<button class="side-link" data-page-nav="escala" onclick="setActiveSideLink(this); showPage('escala')" type="button">
+<span aria-hidden="true" class="side-svg">
+<svg viewbox="0 0 24 24"><path d="M5 4H19V21H5V4Z"></path><path d="M8 2V6M16 2V6M5 9H19M8 13H11M13 13H16M8 17H11"></path></svg>
+</span>
+<span>Escala</span>
+</button>
 <button class="side-link" onclick="clearCarteiraCache()" type="button">
 <span aria-hidden="true" class="side-svg">
 <svg viewbox="0 0 24 24"><path d="M3 7H21V19H3V7Z"></path><path d="M8 7V5H16V7"></path><path d="M8 12H16"></path></svg>
@@ -6878,6 +6884,72 @@ Cole uma por linha"></textarea>
 <button onclick="exportExcel()" type="button">Exportar Excel com essa máscara</button>
 </div>
 </div>
+</div>
+</div>
+<div class="escala-page" id="pageEscala" style="display:none; margin-top:20px;">
+<section class="card escala-hero">
+<div>
+<span class="escala-eyebrow">PLANTÃO COMERCIAL</span>
+<h2>Escala de atendimento</h2>
+<p>Consulte os responsáveis de cada fim de semana e mantenha os contatos da equipe atualizados.</p>
+</div>
+<div class="escala-hero-actions">
+<button class="secondary" onclick="carregarEscala(true)" type="button">↻ Atualizar escala</button>
+<button onclick="abrirFormularioEscala()" type="button">+ Adicionar plantão</button>
+</div>
+</section>
+<section class="escala-kpis">
+<div class="card escala-kpi"><span>Plantões cadastrados</span><strong id="escalaKpiTotal">0</strong></div>
+<div class="card escala-kpi"><span>Próximo plantão</span><strong id="escalaKpiProximo">—</strong></div>
+<div class="card escala-kpi"><span>Gerentes na escala</span><strong id="escalaKpiGerentes">0</strong></div>
+<div class="card escala-kpi"><span>Vendedores na escala</span><strong id="escalaKpiVendedores">0</strong></div>
+</section>
+<section class="card escala-content-card">
+<div class="escala-toolbar">
+<div class="escala-search-wrap">
+<span aria-hidden="true">⌕</span>
+<input id="escalaBusca" oninput="renderEscala()" placeholder="Buscar por nome, data, telefone ou e-mail..."/>
+</div>
+<select id="escalaFiltroMes" onchange="renderEscala()"><option value="">Todos os meses</option></select>
+<select id="escalaFiltroDia" onchange="renderEscala()">
+<option value="">Todos os dias</option>
+<option value="SABADO">Sábado</option>
+<option value="DOMINGO">Domingo</option>
+</select>
+</div>
+<div class="escala-status" id="escalaStatus">A escala será carregada ao abrir esta aba.</div>
+<div class="escala-table-wrap">
+<table id="escalaTable">
+<thead><tr><th>Data</th><th>Dia da semana</th><th>Gerente de Contas</th><th>Celular GC</th><th>E-mail GC</th><th>Vendedor</th><th>Celular VI</th><th>E-mail VI</th><th>Ações</th></tr></thead>
+<tbody id="escalaTableBody"></tbody>
+</table>
+</div>
+<div class="escala-cards" id="escalaCards"></div>
+</section>
+</div>
+<div class="escala-modal-overlay" id="escalaModal" onclick="fecharFormularioEscala(event)">
+<div class="escala-modal" onclick="event.stopPropagation()">
+<div class="escala-modal-head">
+<div><h2 id="escalaModalTitle">Novo plantão</h2><p id="escalaModalSubtitle">Preencha os responsáveis e os contatos para a data selecionada.</p></div>
+<button class="escala-close" onclick="fecharFormularioEscala()" type="button">×</button>
+</div>
+<form id="escalaForm" onsubmit="salvarEscala(event)">
+<div class="escala-form-grid">
+<label>Data da escala<input id="escalaData" required type="date"/></label>
+<label>Dia da semana<input id="escalaDia" readonly required placeholder="Calculado automaticamente"/></label>
+<label>Gerente de Contas<input id="escalaGerente" required placeholder="Nome completo"/></label>
+<label>Celular GC<input id="escalaCelularGC" inputmode="tel" placeholder="(00) 0 0000-0000"/></label>
+<label class="escala-wide">E-mail GC<input id="escalaEmailGC" type="email" placeholder="nome@empresa.com"/></label>
+<label>Vendedor<input id="escalaVendedor" placeholder="Nome completo"/></label>
+<label>Celular VI<input id="escalaCelularVI" inputmode="tel" placeholder="(00) 0 0000-0000"/></label>
+<label class="escala-wide">E-mail VI<input id="escalaEmailVI" type="email" placeholder="nome@empresa.com"/></label>
+</div>
+<div class="escala-form-message" id="escalaFormMessage"></div>
+<div class="escala-modal-actions">
+<button class="secondary" onclick="fecharFormularioEscala()" type="button">Cancelar</button>
+<button id="escalaSalvarBtn" type="submit">Salvar plantão</button>
+</div>
+</form>
 </div>
 </div>
 <div class="permissoes-page" id="pagePermissoes" style="display:none; margin-top:20px;">
@@ -8902,14 +8974,20 @@ function showPage(page){
   const base = document.getElementById('pageBase');
   const passivo = document.getElementById('pagePassivo');
   const riscoOtif = document.getElementById('pageRiscoOTIF');
+  const escala = document.getElementById('pageEscala');
+  const permissoes = document.getElementById('pagePermissoes');
   const filterCard = document.getElementById('filterCard');
   if(dash) dash.style.display = page === 'dashboard' ? 'block' : 'none';
   if(base) base.style.display = page === 'base' ? 'block' : 'none';
   if(passivo) passivo.style.display = page === 'passivo' ? 'block' : 'none';
   if(riscoOtif) riscoOtif.style.display = page === 'riscoOtif' ? 'block' : 'none';
-  if(filterCard) filterCard.style.display = page === 'passivo' ? 'none' : 'block';
+  if(escala) escala.style.display = page === 'escala' ? 'block' : 'none';
+  if(permissoes) permissoes.style.display = page === 'permissoes' ? 'block' : 'none';
+  if(filterCard) filterCard.style.display = (page === 'dashboard' || page === 'base') ? 'block' : 'none';
   if(page === 'passivo') renderPassivoPage();
   if(page === 'riscoOtif') renderRiscoOTIFPage();
+  if(page === 'escala') carregarEscala();
+  if(page === 'permissoes' && typeof renderPermissoesTable === 'function') renderPermissoesTable();
 }
 
 function openPassivoPage(){
@@ -21891,6 +21969,249 @@ document.addEventListener('DOMContentLoaded',preencherUsuarioLogadoComentario);
   document.addEventListener('DOMContentLoaded',()=>setTimeout(window.renderExecutiveDashboardCharts,250));
 })();
 
+</script>
+<style>
+/* ===== Escala de atendimento ===== */
+.escala-page{color:#071426}.escala-hero{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:24px!important;background:linear-gradient(135deg,#fff 0%,#f4f2ff 100%)!important;border:1px solid #e6e2ff!important}
+.escala-eyebrow{display:inline-block;margin-bottom:7px;color:#140a9a;font-size:11px;font-weight:900;letter-spacing:.12em}.escala-hero h2{margin:0;font-size:25px;font-weight:900;letter-spacing:-.03em}.escala-hero p{margin:6px 0 0;color:#667085;font-size:13px}.escala-hero-actions{display:flex;gap:9px;flex-wrap:wrap}
+.escala-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:16px 0}.escala-kpi{padding:17px!important}.escala-kpi span{display:block;color:#667085;font-size:12px;font-weight:800}.escala-kpi strong{display:block;margin-top:7px;color:#140a9a;font-size:23px;line-height:1.1}
+.escala-content-card{padding:18px!important}.escala-toolbar{display:grid;grid-template-columns:minmax(260px,1fr) 190px 160px;gap:10px;margin-bottom:12px}.escala-search-wrap{position:relative}.escala-search-wrap span{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:#667085;font-size:20px}.escala-toolbar input,.escala-toolbar select,.escala-form-grid input{width:100%;min-height:42px;border:1px solid #dce3ee;border-radius:10px;background:#fff;color:#071426;font:inherit;padding:9px 12px}.escala-search-wrap input{padding-left:39px}.escala-toolbar input:focus,.escala-toolbar select:focus,.escala-form-grid input:focus{outline:none;border-color:#140a9a;box-shadow:0 0 0 3px rgba(20,10,154,.1)}
+.escala-status{min-height:20px;margin:4px 0 10px;color:#667085;font-size:12px;font-weight:700}.escala-table-wrap{overflow:auto;border:1px solid #e4e9f1;border-radius:13px}.escala-table-wrap table{width:100%;min-width:1280px;border-collapse:separate;border-spacing:0}.escala-table-wrap th{position:sticky;top:0;z-index:1;padding:12px;background:#140a9a;color:#fff;text-align:left;font-size:11px;white-space:nowrap}.escala-table-wrap td{padding:11px 12px;border-bottom:1px solid #edf0f5;font-size:12px;vertical-align:middle;white-space:nowrap}.escala-table-wrap tbody tr:hover td{background:#f8f7ff}.escala-table-wrap tbody tr:last-child td{border-bottom:0}.escala-date{font-weight:900;color:#140a9a}.escala-day-badge{display:inline-flex;border-radius:999px;background:#ede9fe;color:#140a9a;padding:5px 8px;font-size:10px;font-weight:900}.escala-contact-link{color:#140a9a;text-decoration:none;font-weight:700}.escala-contact-link:hover{text-decoration:underline}.escala-empty{text-align:center!important;color:#667085!important;padding:30px!important}.escala-cards{display:none}.escala-updated{display:block;margin-top:3px;color:#98a2b3;font-size:9px;font-weight:700}.escala-edit-btn{min-height:30px!important;padding:6px 10px!important;border:1px solid #d8d3ff!important;border-radius:8px!important;background:#f4f2ff!important;color:#140a9a!important;font-size:11px!important;font-weight:900!important}.escala-edit-btn:hover{background:#140a9a!important;color:#fff!important}.escala-date-input-locked{background:#f2f4f7!important;color:#667085!important;cursor:not-allowed}
+.escala-modal-overlay{display:none;position:fixed;inset:0;z-index:40000;align-items:center;justify-content:center;padding:18px;background:rgba(7,20,38,.54);backdrop-filter:blur(3px)}.escala-modal-overlay.open{display:flex}.escala-modal{width:min(720px,100%);max-height:92vh;overflow:auto;border-radius:18px;background:#fff;box-shadow:0 28px 90px rgba(7,20,38,.3)}.escala-modal-head{display:flex;align-items:flex-start;justify-content:space-between;gap:15px;padding:20px 22px;border-bottom:1px solid #edf0f5}.escala-modal-head h2{margin:0;font-size:21px}.escala-modal-head p{margin:5px 0 0;color:#667085;font-size:12px}.escala-close{width:36px;height:36px!important;padding:0!important;border-radius:50%!important;background:#f2f4f7!important;color:#071426!important;font-size:22px!important}.escala-modal form{padding:20px 22px}.escala-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.escala-form-grid label{display:flex;flex-direction:column;gap:6px;color:#344054;font-size:12px;font-weight:800}.escala-form-grid .escala-wide{grid-column:1/-1}.escala-form-message{min-height:20px;margin-top:12px;color:#b42318;font-size:12px;font-weight:800}.escala-form-message.success{color:#067647}.escala-modal-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:8px}
+body.dark .escala-hero,body.dark .escala-content-card,body.dark .escala-kpi,body.dark .escala-modal{background:#101828!important;color:#f9fafb!important;border-color:#344054!important}body.dark .escala-hero h2,body.dark .escala-kpi strong,body.dark .escala-modal-head h2{color:#f9fafb}body.dark .escala-toolbar input,body.dark .escala-toolbar select,body.dark .escala-form-grid input{background:#1d2939;color:#f9fafb;border-color:#475467}body.dark .escala-table-wrap td{border-color:#344054}body.dark .escala-table-wrap tbody tr:hover td{background:#1d2939}
+@media(max-width:980px){.escala-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.escala-toolbar{grid-template-columns:1fr 1fr}.escala-search-wrap{grid-column:1/-1}}
+@media(max-width:700px){.escala-hero{align-items:flex-start;flex-direction:column}.escala-hero-actions,.escala-hero-actions button{width:100%}.escala-kpis{grid-template-columns:1fr 1fr;gap:9px}.escala-kpi strong{font-size:18px}.escala-toolbar{grid-template-columns:1fr}.escala-search-wrap{grid-column:auto}.escala-table-wrap{display:none}.escala-cards{display:grid;gap:11px}.escala-mobile-card{border:1px solid #e4e9f1;border-radius:14px;padding:14px;background:#fff}.escala-mobile-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.escala-person{padding:10px 0;border-top:1px solid #edf0f5}.escala-person:first-of-type{border-top:0}.escala-person small{display:block;margin-bottom:4px;color:#667085;font-size:10px;font-weight:900;text-transform:uppercase}.escala-person strong{display:block;font-size:13px}.escala-person a{display:block;margin-top:4px;color:#140a9a;font-size:11px;text-decoration:none}.escala-form-grid{grid-template-columns:1fr}.escala-form-grid .escala-wide{grid-column:auto}body.dark .escala-mobile-card{background:#101828;border-color:#344054}.escala-modal-actions button{flex:1}}
+</style>
+<script>
+/* ===== Módulo: Escala de atendimento ===== */
+const ESCALA_CREATE_API_URL = "https://905143a43ca6eba28bf3e05b636fc5.bd.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/21/workflows/d47b1850e12f4fea8b5a19a31778ba04/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=u1TketimxNsRmOXBF5vwiQ-OlVWZul-ozDt0UD8rz5g";
+const ESCALA_READ_API_URL = "https://905143a43ca6eba28bf3e05b636fc5.bd.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/24/workflows/1862cbe7ec0e41aa81738eee3d0789ae/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=eQTY9KCBEhe89iJFQl92SGe8-qKZ2alBgLNE49h7tBo";
+let escalaDados = [];
+let escalaCarregada = false;
+let escalaCarregando = false;
+let escalaEditandoChave = '';
+
+function escalaExtrairArray(payload){
+  if(Array.isArray(payload)) return payload.flat(Infinity).filter(v=>v && typeof v === 'object' && !Array.isArray(v));
+  if(!payload || typeof payload !== 'object') return [];
+  const candidatos = [payload.value,payload.body,payload.data,payload.result,payload.results,payload.items,payload.escala];
+  for(const candidato of candidatos){
+    const arr = escalaExtrairArray(candidato);
+    if(arr.length) return arr;
+  }
+  if('DataEscala' in payload || 'GerenteDeContas' in payload) return [payload];
+  return [];
+}
+function escalaTexto(valor){ return valor == null ? '' : String(valor).trim(); }
+function escalaSemAcento(valor){ return escalaTexto(valor).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase(); }
+function escalaParseData(valor){
+  const s = escalaTexto(valor);
+  if(!s) return null;
+  let m = s.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if(m) return new Date(Number(m[3]),Number(m[2])-1,Number(m[1]),12);
+  m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if(m) return new Date(Number(m[1]),Number(m[2])-1,Number(m[3]),12);
+  const d = new Date(s);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+function escalaDataBR(valor){
+  const d = valor instanceof Date ? valor : escalaParseData(valor);
+  return d ? d.toLocaleDateString('pt-BR') : escalaTexto(valor);
+}
+function escalaDataPayload(valor){
+  const d = escalaParseData(valor);
+  return d ? d.toLocaleDateString('pt-BR') : escalaTexto(valor);
+}
+function escalaNormalizar(item){
+  return {
+    DataEscala: escalaTexto(item.DataEscala ?? item.dataEscala ?? item.Title),
+    DiaDaSemana: escalaTexto(item.DiaDaSemana ?? item.DiadaSemana ?? item.diaDaSemana),
+    GerenteDeContas: escalaTexto(item.GerenteDeContas ?? item.GerentedeContas ?? item.gerenteDeContas),
+    CelularGC: escalaTexto(item.CelularGC ?? item.celularGC),
+    EmailGC: escalaTexto(item.EmailGC ?? item.emailGC),
+    Vendedor: escalaTexto(item.Vendedor ?? item.vendedor),
+    CelularVI: escalaTexto(item.CelularVI ?? item.celularVI),
+    EmailVI: escalaTexto(item.EmailVI ?? item.emailVI),
+    DtAtualizacao: escalaTexto(item['DtAtualização'] ?? item.DtAtualizacao ?? item.dtAtualizacao ?? item.DtAtualização ?? item.Modified ?? item.modified)
+  };
+}
+function escalaTimestampAtualizacao(item){
+  const timestamp=Date.parse(escalaTexto(item?.DtAtualizacao));
+  return Number.isNaN(timestamp) ? 0 : timestamp;
+}
+function escalaChaveData(item){
+  const d=escalaParseData(item?.DataEscala);
+  return d ? `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}` : escalaSemAcento(item?.DataEscala);
+}
+function escalaSomenteUltimasAtualizacoes(dados){
+  const porData=new Map();
+  dados.forEach((item,indice)=>{
+    const chave=escalaChaveData(item) || `SEM_DATA_${indice}`;
+    const atual=porData.get(chave);
+    const candidato={item,indice,timestamp:escalaTimestampAtualizacao(item)};
+    if(!atual || candidato.timestamp>atual.timestamp || (candidato.timestamp===atual.timestamp && candidato.indice>atual.indice)) porData.set(chave,candidato);
+  });
+  return [...porData.values()].map(reg=>reg.item);
+}
+function escalaAtualizacaoBR(valor){
+  const timestamp=Date.parse(escalaTexto(valor));
+  return Number.isNaN(timestamp) ? '' : new Date(timestamp).toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'});
+}
+function escalaEscape(valor){
+  return escalaTexto(valor).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function escalaLinkTelefone(valor){
+  const texto=escalaEscape(valor), numero=escalaTexto(valor).replace(/\D/g,'');
+  return numero ? `<a class="escala-contact-link" href="tel:${numero}">${texto}</a>` : '—';
+}
+function escalaLinkEmail(valor){
+  const texto=escalaEscape(valor);
+  return texto ? `<a class="escala-contact-link" href="mailto:${texto}">${texto}</a>` : '—';
+}
+async function carregarEscala(forcar=false){
+  if(escalaCarregando || (escalaCarregada && !forcar)){ renderEscala(); return; }
+  escalaCarregando=true;
+  const status=document.getElementById('escalaStatus');
+  if(status) status.textContent='Carregando escala...';
+  try{
+    const resposta=await fetch(ESCALA_READ_API_URL,{method:'GET',headers:{'Accept':'application/json'}});
+    if(!resposta.ok) throw new Error(`API retornou ${resposta.status}`);
+    const texto=await resposta.text();
+    const payload=texto ? JSON.parse(texto) : [];
+    const registros=escalaExtrairArray(payload).map(escalaNormalizar).filter(x=>x.DataEscala || x.GerenteDeContas || x.Vendedor);
+    escalaDados=escalaSomenteUltimasAtualizacoes(registros);
+    escalaDados.sort((a,b)=>(escalaParseData(a.DataEscala)?.getTime()||0)-(escalaParseData(b.DataEscala)?.getTime()||0));
+    escalaCarregada=true;
+    preencherFiltroMesEscala();
+    renderEscala();
+  }catch(erro){
+    console.error('[Hisho] Erro ao carregar escala:',erro);
+    if(status) status.textContent='Não foi possível carregar a escala. Clique em “Atualizar escala” para tentar novamente.';
+    if(typeof showToast==='function') showToast('Erro ao carregar a escala.','error');
+  }finally{ escalaCarregando=false; }
+}
+function preencherFiltroMesEscala(){
+  const select=document.getElementById('escalaFiltroMes');
+  if(!select) return;
+  const atual=select.value;
+  const meses=new Map();
+  escalaDados.forEach(item=>{
+    const d=escalaParseData(item.DataEscala);
+    if(d){ const chave=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; meses.set(chave,d.toLocaleDateString('pt-BR',{month:'long',year:'numeric'})); }
+  });
+  select.innerHTML='<option value="">Todos os meses</option>'+[...meses.entries()].sort().map(([v,l])=>`<option value="${v}">${l.charAt(0).toUpperCase()+l.slice(1)}</option>`).join('');
+  if([...meses.keys()].includes(atual)) select.value=atual;
+}
+function escalaFiltrada(){
+  const busca=escalaSemAcento(document.getElementById('escalaBusca')?.value);
+  const mes=document.getElementById('escalaFiltroMes')?.value || '';
+  const dia=escalaSemAcento(document.getElementById('escalaFiltroDia')?.value);
+  return escalaDados.filter(item=>{
+    const d=escalaParseData(item.DataEscala);
+    const chave=d ? `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}` : '';
+    const hay=escalaSemAcento(Object.values(item).join(' '));
+    return (!busca || hay.includes(busca)) && (!mes || chave===mes) && (!dia || escalaSemAcento(item.DiaDaSemana)===dia);
+  });
+}
+function renderEscala(){
+  const dados=escalaFiltrada();
+  const tbody=document.getElementById('escalaTableBody');
+  const cards=document.getElementById('escalaCards');
+  const status=document.getElementById('escalaStatus');
+  if(tbody) tbody.innerHTML=dados.length ? dados.map(item=>`<tr>
+    <td class="escala-date">${escalaEscape(escalaDataBR(item.DataEscala))}${item.DtAtualizacao?`<small class="escala-updated">Atualizado: ${escalaEscape(escalaAtualizacaoBR(item.DtAtualizacao))}</small>`:''}</td><td><span class="escala-day-badge">${escalaEscape(item.DiaDaSemana||'—')}</span></td>
+    <td>${escalaEscape(item.GerenteDeContas)||'—'}</td><td>${escalaLinkTelefone(item.CelularGC)}</td><td>${escalaLinkEmail(item.EmailGC)}</td>
+    <td>${escalaEscape(item.Vendedor)||'—'}</td><td>${escalaLinkTelefone(item.CelularVI)}</td><td>${escalaLinkEmail(item.EmailVI)}</td><td><button class="escala-edit-btn" onclick="editarEscala('${escalaEscape(escalaChaveData(item))}')" type="button">✎ Editar</button></td></tr>`).join('') : '<tr><td class="escala-empty" colspan="9">Nenhum plantão encontrado para os filtros selecionados.</td></tr>';
+  if(cards) cards.innerHTML=dados.length ? dados.map(item=>`<article class="escala-mobile-card"><div class="escala-mobile-top"><strong class="escala-date">${escalaEscape(escalaDataBR(item.DataEscala))}${item.DtAtualizacao?`<small class="escala-updated">Atualizado: ${escalaEscape(escalaAtualizacaoBR(item.DtAtualizacao))}</small>`:''}</strong><span class="escala-day-badge">${escalaEscape(item.DiaDaSemana||'—')}</span></div>
+    <div class="escala-person"><small>Gerente de Contas</small><strong>${escalaEscape(item.GerenteDeContas)||'—'}</strong>${escalaLinkTelefone(item.CelularGC)}${escalaLinkEmail(item.EmailGC)}</div>
+    <div class="escala-person"><small>Vendedor</small><strong>${escalaEscape(item.Vendedor)||'—'}</strong>${escalaLinkTelefone(item.CelularVI)}${escalaLinkEmail(item.EmailVI)}</div><button class="escala-edit-btn" onclick="editarEscala('${escalaEscape(escalaChaveData(item))}')" type="button">✎ Editar plantão</button></article>`).join('') : '<div class="escala-empty">Nenhum plantão encontrado.</div>';
+  if(status && escalaCarregada) status.textContent=`${dados.length} de ${escalaDados.length} plantão(ões) exibido(s).`;
+  atualizarKpisEscala();
+}
+function atualizarKpisEscala(){
+  const hoje=new Date(); hoje.setHours(0,0,0,0);
+  const proximo=escalaDados.find(x=>{const d=escalaParseData(x.DataEscala); return d && d>=hoje;});
+  const gerentes=new Set(escalaDados.map(x=>escalaSemAcento(x.GerenteDeContas)).filter(Boolean));
+  const vendedores=new Set(escalaDados.map(x=>escalaSemAcento(x.Vendedor)).filter(Boolean));
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  set('escalaKpiTotal',escalaDados.length); set('escalaKpiProximo',proximo?escalaDataBR(proximo.DataEscala):'—'); set('escalaKpiGerentes',gerentes.size); set('escalaKpiVendedores',vendedores.size);
+}
+function abrirFormularioEscala(){
+  escalaEditandoChave='';
+  const modal=document.getElementById('escalaModal');
+  const form=document.getElementById('escalaForm');
+  if(form) form.reset();
+  const dataInput=document.getElementById('escalaData'); if(dataInput){dataInput.readOnly=false;dataInput.classList.remove('escala-date-input-locked');}
+  const titulo=document.getElementById('escalaModalTitle'); if(titulo) titulo.textContent='Novo plantão';
+  const subtitulo=document.getElementById('escalaModalSubtitle'); if(subtitulo) subtitulo.textContent='Preencha os responsáveis e os contatos para a data selecionada.';
+  const btn=document.getElementById('escalaSalvarBtn'); if(btn) btn.textContent='Salvar plantão';
+  const msg=document.getElementById('escalaFormMessage'); if(msg){msg.textContent='';msg.className='escala-form-message';}
+  if(modal){modal.classList.add('open');modal.setAttribute('aria-hidden','false');}
+  setTimeout(()=>document.getElementById('escalaData')?.focus(),50);
+}
+function editarEscala(chave){
+  const item=escalaDados.find(reg=>escalaChaveData(reg)===chave);
+  if(!item) return;
+  escalaEditandoChave=chave;
+  const form=document.getElementById('escalaForm'); if(form) form.reset();
+  const d=escalaParseData(item.DataEscala);
+  const valores={
+    escalaData:d?`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`:'',
+    escalaDia:item.DiaDaSemana,escalaGerente:item.GerenteDeContas,escalaCelularGC:item.CelularGC,escalaEmailGC:item.EmailGC,
+    escalaVendedor:item.Vendedor,escalaCelularVI:item.CelularVI,escalaEmailVI:item.EmailVI
+  };
+  Object.entries(valores).forEach(([id,valor])=>{const el=document.getElementById(id);if(el)el.value=valor||'';});
+  const dataInput=document.getElementById('escalaData'); if(dataInput){dataInput.readOnly=true;dataInput.classList.add('escala-date-input-locked');}
+  const titulo=document.getElementById('escalaModalTitle'); if(titulo) titulo.textContent='Editar plantão';
+  const subtitulo=document.getElementById('escalaModalSubtitle'); if(subtitulo) subtitulo.textContent=`Altere o Gerente de Contas, o Vendedor ou seus contatos em ${escalaDataBR(item.DataEscala)}.`;
+  const btn=document.getElementById('escalaSalvarBtn'); if(btn) btn.textContent='Salvar alterações';
+  const msg=document.getElementById('escalaFormMessage'); if(msg){msg.textContent='';msg.className='escala-form-message';}
+  const modal=document.getElementById('escalaModal'); if(modal){modal.classList.add('open');modal.setAttribute('aria-hidden','false');}
+  setTimeout(()=>document.getElementById('escalaGerente')?.focus(),50);
+}
+function fecharFormularioEscala(event){
+  if(event && event.target!==document.getElementById('escalaModal')) return;
+  const modal=document.getElementById('escalaModal'); if(modal){modal.classList.remove('open');modal.setAttribute('aria-hidden','true');}
+}
+document.getElementById('escalaData')?.addEventListener('change',function(){
+  const d=escalaParseData(this.value);
+  const dia=document.getElementById('escalaDia');
+  if(dia) dia.value=d ? d.toLocaleDateString('pt-BR',{weekday:'long'}).replace(/^./,c=>c.toUpperCase()) : '';
+});
+['escalaCelularGC','escalaCelularVI'].forEach(id=>document.getElementById(id)?.addEventListener('input',function(){
+  const n=this.value.replace(/\D/g,'').slice(0,11);
+  this.value=n.length>10?n.replace(/^(\d{2})(\d)(\d{4})(\d{0,4}).*/,'($1) $2 $3-$4'):n.replace(/^(\d{2})(\d{4})(\d{0,4}).*/,'($1) $2-$3');
+}));
+async function salvarEscala(event){
+  event.preventDefault();
+  const btn=document.getElementById('escalaSalvarBtn'), msg=document.getElementById('escalaFormMessage');
+  const payload={
+    DataEscala:escalaDataPayload(document.getElementById('escalaData')?.value),
+    DiaDaSemana:escalaTexto(document.getElementById('escalaDia')?.value),
+    GerenteDeContas:escalaTexto(document.getElementById('escalaGerente')?.value),
+    CelularGC:escalaTexto(document.getElementById('escalaCelularGC')?.value),
+    EmailGC:escalaTexto(document.getElementById('escalaEmailGC')?.value),
+    Vendedor:escalaTexto(document.getElementById('escalaVendedor')?.value),
+    CelularVI:escalaTexto(document.getElementById('escalaCelularVI')?.value),
+    EmailVI:escalaTexto(document.getElementById('escalaEmailVI')?.value)
+  };
+  if(!payload.DataEscala || !payload.DiaDaSemana || !payload.GerenteDeContas){ if(msg)msg.textContent='Preencha a data e o Gerente de Contas.'; return; }
+  const eraEdicao=Boolean(escalaEditandoChave);
+  if(btn){btn.disabled=true;btn.textContent='Salvando...';} if(msg){msg.textContent=eraEdicao?'Salvando alterações...':'Enviando dados para a escala...';msg.className='escala-form-message';}
+  try{
+    const resposta=await fetch(ESCALA_CREATE_API_URL,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(payload)});
+    if(!resposta.ok) throw new Error(`API retornou ${resposta.status}`);
+    if(msg){msg.textContent=eraEdicao?'Alterações salvas com sucesso.':'Plantão salvo com sucesso.';msg.className='escala-form-message success';}
+    if(typeof showToast==='function') showToast(eraEdicao?'Plantão atualizado.':'Plantão adicionado à escala.','success');
+    escalaCarregada=false;
+    await carregarEscala(true);
+    setTimeout(()=>fecharFormularioEscala(),700);
+  }catch(erro){
+    console.error('[Hisho] Erro ao salvar escala:',erro);
+    if(msg){msg.textContent='Não foi possível salvar o plantão. Verifique a conexão e tente novamente.';msg.className='escala-form-message';}
+  }finally{ if(btn){btn.disabled=false;btn.textContent=eraEdicao?'Salvar alterações':'Salvar plantão';} }
+}
+document.addEventListener('keydown',event=>{if(event.key==='Escape')fecharFormularioEscala();});
 </script>
 <!-- PWA installer omitted in single-file build; requires service-worker.js and manifest.webmanifest on a web server. -->
 
