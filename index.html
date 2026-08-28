@@ -25,6 +25,7 @@
   - O carregamento externo do Chart.js foi corrigido para não misturar código inline no script com src.
 -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <!-- =========================================================
      JS / módulo funcional: comment-modal-bootstrap
      ========================================================= -->
@@ -6124,10 +6125,40 @@ body.hisho-auth-force-lock header,
   border-color:#FFE7A0;
   background:#FFF9E8;
 }
+.executive-donut-legend{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:10px 22px;
+  width:100%;
+  margin:8px auto 0;
+  color:#344054;
+  font-size:11px;
+  font-weight:800;
+  line-height:1.25;
+  text-align:center;
+}
+.executive-donut-legend-item{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  white-space:nowrap;
+}
+.executive-donut-legend-dot{
+  width:10px;
+  height:10px;
+  flex:0 0 10px;
+  border-radius:50%;
+  background:var(--legend-color);
+  box-shadow:0 0 0 2px rgba(7,20,38,.05);
+}
 @media(max-width:760px){
   .executive-chart-card{min-height:315px!important;padding:18px!important;}
   .executive-chart-card canvas{height:225px!important;max-height:225px!important;}
   .executive-dashboard-badge{width:100%;justify-content:center;}
+  .executive-donut-legend{gap:8px 14px;font-size:10px;}
 }
 /* ===== FIM AJUSTE VISUAL EXECUTIVO ===== */
 
@@ -6519,11 +6550,20 @@ PN-ABC-001"></textarea>
         <div class="executive-summary-item warning"><span>POs incompletas</span><strong id="poIncompletasResumo">0</strong></div>
       </div>
       <canvas id="chartPoStatus"></canvas>
+      <div class="executive-donut-legend" aria-label="Legenda de POs completas e incompletas">
+        <span class="executive-donut-legend-item"><i class="executive-donut-legend-dot" style="--legend-color:#140A9A"></i>POs completas</span>
+        <span class="executive-donut-legend-item"><i class="executive-donut-legend-dot" style="--legend-color:#FFC82F"></i>POs incompletas</span>
+      </div>
     </article>
     <article class="card executive-chart-card">
       <div class="chart-head"><h3>Idade da carteira</h3><button class="btn-download" onclick="downloadChartPNG('chartCarteiraIdade','idade_da_carteira')">Baixar PNG</button></div>
       <div class="executive-chart-caption">Considera o maior número de dias em aberto de cada PO incompleta.</div>
       <canvas id="chartCarteiraIdade"></canvas>
+      <div class="executive-donut-legend" aria-label="Legenda da idade da carteira">
+        <span class="executive-donut-legend-item"><i class="executive-donut-legend-dot" style="--legend-color:#140A9A"></i>Abertos há menos de 30 dias</span>
+        <span class="executive-donut-legend-item"><i class="executive-donut-legend-dot" style="--legend-color:#FFC82F"></i>Abertos entre 30 e 60 dias</span>
+        <span class="executive-donut-legend-item"><i class="executive-donut-legend-dot" style="--legend-color:#C00000"></i>Abertos há mais de 60 dias</span>
+      </div>
     </article>
     <article class="card executive-chart-card forecast">
       <div class="chart-head"><h3>Previsão de conclusão da carteira</h3><button class="btn-download" onclick="downloadChartPNG('chartPrevisaoConclusao','previsao_conclusao_carteira')">Baixar PNG</button></div>
@@ -10829,7 +10869,7 @@ async function downloadChartPNG(chartId, filename){
     }
   }
 
-  if(!chart || !chart.canvas){
+  if(!chart || !chart.canvas || !canvas){
     notifyUser(String('Não foi possível localizar o gráfico. Atualize a aba e tente novamente.'), 'warning', 'Aviso');
     return;
   }
@@ -10844,38 +10884,48 @@ async function downloadChartPNG(chartId, filename){
     console.warn('Não foi possível finalizar a animação do gráfico antes do download:', error);
   }
 
-  const sourceCanvas = chart.canvas;
-  const chartTitle = sourceCanvas.closest('.card')?.querySelector('h3')?.innerText || filename;
+  const card = canvas.closest('.card');
+  if(!card || typeof html2canvas !== 'function'){
+    notifyUser(String('O recurso de captura do gráfico ainda não foi carregado. Aguarde alguns segundos e tente novamente.'), 'warning', 'Aviso');
+    return;
+  }
 
-  const scale = 2;
-  const padding = 32;
-  const titleHeight = 48;
+  // Captura o card como ele está renderizado na tela. O botão é ocultado
+  // somente durante a geração para não aparecer dentro da própria imagem.
+  const downloadButtons = [...card.querySelectorAll('.btn-download')];
+  const previousVisibility = downloadButtons.map(button=>button.style.visibility);
+  downloadButtons.forEach(button=>{ button.style.visibility='hidden'; });
+  card.classList.add('chart-exporting-png');
 
-  const exportCanvas = document.createElement('canvas');
-  exportCanvas.width = (sourceCanvas.width + padding * 2) * scale;
-  exportCanvas.height = (sourceCanvas.height + padding * 2 + titleHeight) * scale;
+  try{
+    await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+    const exportCanvas = await html2canvas(card,{
+      backgroundColor:'#ffffff',
+      scale:2,
+      useCORS:true,
+      allowTaint:false,
+      logging:false,
+      width:card.offsetWidth,
+      height:card.offsetHeight,
+      scrollX:-window.scrollX,
+      scrollY:-window.scrollY,
+      windowWidth:document.documentElement.clientWidth,
+      windowHeight:document.documentElement.clientHeight
+    });
 
-  const ctx = exportCanvas.getContext('2d');
-
-  const cardBg = getComputedStyle(document.body).getPropertyValue('--card').trim() || '#ffffff';
-  const textColor = getComputedStyle(document.body).getPropertyValue('--text').trim() || '#111827';
-
-  ctx.scale(scale, scale);
-  ctx.fillStyle = cardBg;
-  ctx.fillRect(0, 0, exportCanvas.width / scale, exportCanvas.height / scale);
-
-  ctx.fillStyle = textColor;
-  ctx.font = 'bold 22px Inter, Segoe UI, Arial';
-  ctx.textAlign = 'left';
-  ctx.textBaseline = 'top';
-  ctx.fillText(chartTitle, padding, padding);
-
-  ctx.drawImage(sourceCanvas, padding, padding + titleHeight);
-
-  const link = document.createElement('a');
-  link.download = filename + '.png';
-  link.href = exportCanvas.toDataURL('image/png', 1.0);
-  link.click();
+    const link = document.createElement('a');
+    link.download = filename + '.png';
+    link.href = exportCanvas.toDataURL('image/png',1.0);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  }catch(error){
+    console.error('Não foi possível capturar o card do gráfico:',error);
+    notifyUser(String('Não foi possível gerar o PNG completo. Tente novamente.'),'error','Erro');
+  }finally{
+    downloadButtons.forEach((button,index)=>{ button.style.visibility=previousVisibility[index]; });
+    card.classList.remove('chart-exporting-png');
+  }
 }
 
 
@@ -21583,8 +21633,9 @@ document.addEventListener('DOMContentLoaded',preencherUsuarioLogadoComentario);
       grossValues[index]+=Number(po.grossValue)||0;
     });
     const totalGross=grossValues.reduce((a,b)=>a+b,0);
-    let runningGross=0;
-    const cumulative = grossValues.map(v=>{ runningGross += v; return totalGross ? Number(((runningGross/totalGross)*100).toFixed(1)) : 0; });
+    const totalOrders=counts.reduce((a,b)=>a+b,0);
+    let runningOrders=0;
+    const cumulative = counts.map(v=>{ runningOrders += v; return totalOrders ? Number(((runningOrders/totalOrders)*100).toFixed(1)) : 0; });
     const labels=categoryLabels.map((label,i)=>[label,`${counts[i].toLocaleString('pt-BR')} pedido${counts[i]===1?'':'s'}`]);
     return {labels,categoryLabels,counts,grossValues,cumulative,total:population.length,totalGross};
   }
@@ -21646,20 +21697,15 @@ document.addEventListener('DOMContentLoaded',preencherUsuarioLogadoComentario);
 
   function hishoDonutLegendLabels(chart){
     const original=Chart.defaults.plugins.legend.labels.generateLabels(chart);
-    const data=chart.data.datasets?.[0]?.data||[];
-    const total=data.reduce((sum,v)=>sum+(Number(v)||0),0);
     return original.map((item,index)=>{
-      const value=Number(data[index])||0;
-      const pct=total?((value/total)*100):0;
-      const gross=Number(chart.data.datasets?.[0]?.grossValues?.[index])||0;
-      item.text=`${chart.data.labels[index]} — ${value.toLocaleString('pt-BR')} (${String(pct.toFixed(1)).replace('.',',')}%) • ${formatGrossCompact(gross)}`;
+      item.text=chart.data.labels[index];
       return item;
     });
   }
 
   function donut(id,labels,values,colors,grossValues=[]){
     destroy(id); const canvas=document.getElementById(id); if(!canvas) return;
-    window.hishoExecutiveCharts[id] = new Chart(canvas,{type:'doughnut',data:{labels,datasets:[{data:values,grossValues,backgroundColor:colors,borderColor:'#FFFFFF',borderWidth:5,hoverOffset:5,spacing:1}]},options:{responsive:true,maintainAspectRatio:false,cutout:'70%',layout:{padding:{top:18,bottom:8,left:105,right:105}},plugins:{legend:{position:'bottom',labels:{generateLabels:hishoDonutLegendLabels,usePointStyle:true,pointStyle:'circle',boxWidth:8,boxHeight:8,padding:20,color:PALETTE.text,font:{family:'Segoe UI',size:11,weight:'700'}}},tooltip:{backgroundColor:'#071426',titleFont:{family:'Segoe UI',weight:'700'},bodyFont:{family:'Segoe UI'},padding:11,cornerRadius:8,callbacks:{label(ctx){const total=ctx.dataset.data.reduce((a,b)=>a+b,0);const pct=total?((ctx.raw/total)*100).toFixed(1):0;return ` ${ctx.label}: ${ctx.raw.toLocaleString('pt-BR')} (${String(pct).replace('.',',')}%)`;}}}}},plugins:[hishoDonutDataLabelsPlugin]});
+    window.hishoExecutiveCharts[id] = new Chart(canvas,{type:'doughnut',data:{labels,datasets:[{data:values,grossValues,backgroundColor:colors,borderColor:'#FFFFFF',borderWidth:5,hoverOffset:5,spacing:1}]},options:{responsive:true,maintainAspectRatio:false,cutout:'70%',layout:{padding:{top:18,bottom:8,left:105,right:105}},plugins:{legend:{display:false},tooltip:{backgroundColor:'#071426',titleFont:{family:'Segoe UI',weight:'700'},bodyFont:{family:'Segoe UI'},padding:11,cornerRadius:8,callbacks:{label(ctx){const total=ctx.dataset.data.reduce((a,b)=>a+b,0);const pct=total?((ctx.raw/total)*100).toFixed(1):0;return ` ${ctx.label}: ${ctx.raw.toLocaleString('pt-BR')} (${String(pct).replace('.',',')}%)`;}}}}},plugins:[hishoDonutDataLabelsPlugin]});
   }
 
   const forecastLabelsPlugin = {
@@ -21747,8 +21793,8 @@ document.addEventListener('DOMContentLoaded',preencherUsuarioLogadoComentario);
     destroy(id); const canvas=document.getElementById(id); if(!canvas) return;
     const options=cleanForecastScales(baseOptions());
     options.layout={padding:{top:30,right:12,left:12,bottom:0}};
-    options.plugins.tooltip.callbacks={label(ctx){return ctx.datasetIndex===0?` Valor bruto: ${Number(ctx.raw).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}`:` % acumulado do valor bruto: ${ctx.raw}%`;}};
-    window.hishoExecutiveCharts[id]=new Chart(canvas,{type:'bar',data:{labels:data.labels,datasets:[{label:'Valor bruto',data:data.grossValues,backgroundColor:PALETTE.blue,borderRadius:7,maxBarThickness:62,yAxisID:'y'},{label:'% acumulado do valor bruto',data:data.cumulative,type:'line',borderColor:PALETTE.green,backgroundColor:PALETTE.green,tension:.32,borderWidth:4,pointRadius:4,pointHoverRadius:6,yAxisID:'y1'}]},options,plugins:[forecastLabelsPlugin]});
+    options.plugins.tooltip.callbacks={label(ctx){return ctx.datasetIndex===0?` Valor bruto: ${Number(ctx.raw).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}`:` % acumulado de pedidos: ${ctx.raw}%`;}};
+    window.hishoExecutiveCharts[id]=new Chart(canvas,{type:'bar',data:{labels:data.labels,datasets:[{label:'Valor bruto',data:data.grossValues,backgroundColor:PALETTE.blue,borderRadius:7,maxBarThickness:62,yAxisID:'y'},{label:'% acumulado de pedidos',data:data.cumulative,type:'line',borderColor:PALETTE.green,backgroundColor:PALETTE.green,tension:.32,borderWidth:4,pointRadius:4,pointHoverRadius:6,yAxisID:'y1'}]},options,plugins:[forecastLabelsPlugin]});
   }
 
   window.getHishoExecutiveMetrics = function(base){ return getExecutiveMetrics(base || window.filteredData || []); };
@@ -21823,7 +21869,7 @@ document.addEventListener('DOMContentLoaded',preencherUsuarioLogadoComentario);
         animation:false,
         devicePixelRatio:2,
         plugins:{
-          legend:{position:'bottom',labels:{generateLabels:hishoDonutLegendLabels,usePointStyle:true,padding:20,color:PALETTE.text,font:{family:'Segoe UI',size:14,weight:'700'}}},
+          legend:{position:'bottom',align:'center',fullSize:true,labels:{generateLabels:hishoDonutLegendLabels,usePointStyle:true,pointStyle:'circle',padding:20,color:PALETTE.text,font:{family:'Segoe UI',size:14,weight:'700'}}},
           tooltip:{enabled:false}
         }
       };
@@ -21833,7 +21879,7 @@ document.addEventListener('DOMContentLoaded',preencherUsuarioLogadoComentario);
         chart=new Chart(canvas,{type:'doughnut',data:{labels:Object.keys(metrics.ages),datasets:[{data:Object.values(metrics.ages),grossValues:Object.keys(metrics.ages).map(k=>metrics.ageGross[k]||0),backgroundColor:[PALETTE.blue,PALETTE.yellow,PALETTE.red],borderColor:'#FFFFFF',borderWidth:6}]},options:{...common,cutout:'68%',layout:{padding:{top:35,bottom:35,left:125,right:125}}},plugins:[hishoDonutDataLabelsPlugin]});
       }else if(id==='chartPrevisaoConclusao' || id==='chartPrevisaoConclusao60'){
         const data=buildForecast(metrics,id==='chartPrevisaoConclusao60');
-        chart=new Chart(canvas,{type:'bar',data:{labels:data.labels,datasets:[{label:'Valor bruto',data:data.grossValues,backgroundColor:PALETTE.blue,borderRadius:8,maxBarThickness:85,yAxisID:'y'},{label:'% acumulado do valor bruto',data:data.cumulative,type:'line',borderColor:PALETTE.green,backgroundColor:PALETTE.green,tension:.3,borderWidth:5,pointRadius:5,yAxisID:'y1'}]},options:{...common,layout:{padding:{top:34,right:14,left:14,bottom:0}},scales:{x:{grid:{display:false,drawBorder:false},border:{display:false},ticks:{color:PALETTE.text,font:{size:13,weight:'700'}}},y:{beginAtZero:true,grid:{display:false,drawBorder:false},border:{display:false},ticks:{display:false}},y1:{position:'right',min:0,max:100,grid:{display:false,drawOnChartArea:false,drawBorder:false},border:{display:false},ticks:{display:false}}}},plugins:[forecastLabelsPlugin]});
+        chart=new Chart(canvas,{type:'bar',data:{labels:data.labels,datasets:[{label:'Valor bruto',data:data.grossValues,backgroundColor:PALETTE.blue,borderRadius:8,maxBarThickness:85,yAxisID:'y'},{label:'% acumulado de pedidos',data:data.cumulative,type:'line',borderColor:PALETTE.green,backgroundColor:PALETTE.green,tension:.3,borderWidth:5,pointRadius:5,yAxisID:'y1'}]},options:{...common,layout:{padding:{top:34,right:14,left:14,bottom:0}},scales:{x:{grid:{display:false,drawBorder:false},border:{display:false},ticks:{color:PALETTE.text,font:{size:13,weight:'700'}}},y:{beginAtZero:true,grid:{display:false,drawBorder:false},border:{display:false},ticks:{display:false}},y1:{position:'right',min:0,max:100,grid:{display:false,drawOnChartArea:false,drawBorder:false},border:{display:false},ticks:{display:false}}}},plugins:[forecastLabelsPlugin]});
       }else if(id==='chartOTIF'){
         const okRows=(exportBase||[]).filter(r=>norm(r?.[COLS.otif])==='SIM');
         const naoRows=(exportBase||[]).filter(r=>norm(r?.[COLS.otif])!=='SIM');
@@ -21947,7 +21993,7 @@ document.addEventListener('DOMContentLoaded',preencherUsuarioLogadoComentario);
     const over60=buildForecast(metrics,true);
     ws.getCell(46,9).value='Dados da previsão';
     styleTitle(ws.getCell(46,9),14);
-    [['Categoria','Qtd. POs','Valor bruto','% acumulado bruto'],...overall.categoryLabels.map((l,i)=>[l,overall.counts[i],overall.grossValues[i],overall.cumulative[i]/100])]
+    [['Categoria','Qtd. POs','Valor bruto','% acumulado de pedidos'],...overall.categoryLabels.map((l,i)=>[l,overall.counts[i],overall.grossValues[i],overall.cumulative[i]/100])]
       .forEach((values,idx)=>{
         const row=ws.getRow(48+idx);
         values.forEach((value,j)=>{ row.getCell(9+j).value=value; });
@@ -21956,7 +22002,7 @@ document.addEventListener('DOMContentLoaded',preencherUsuarioLogadoComentario);
 
     ws.getCell(46,13).value='Pedidos +60 dias';
     styleTitle(ws.getCell(46,13),14);
-    [['Categoria','Qtd. POs','Valor bruto','% acumulado bruto'],...over60.categoryLabels.map((l,i)=>[l,over60.counts[i],over60.grossValues[i],over60.cumulative[i]/100])]
+    [['Categoria','Qtd. POs','Valor bruto','% acumulado de pedidos'],...over60.categoryLabels.map((l,i)=>[l,over60.counts[i],over60.grossValues[i],over60.cumulative[i]/100])]
       .forEach((values,idx)=>{
         const row=ws.getRow(48+idx);
         values.forEach((value,j)=>{ row.getCell(13+j).value=value; });
