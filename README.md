@@ -1,55 +1,48 @@
-# Hisho Web - Estrutura V1.0
+# LUMO 0.15.0 — Fotto Direto
 
-Projeto reorganizado a partir do `index(16).html`. O objetivo desta versão é manter as funções atuais e separar o código para facilitar publicação em servidor, manutenção e criação de novas features.
+Aplicativo Android para captura vinculada Canon, edição automática/manual, curadoria técnica e entrega ao Fotto.
 
-## Como publicar
+## Novidade desta versão
 
-1. Envie todo o conteúdo desta pasta para o servidor.
-2. Configure o servidor para abrir `index.html` como página inicial.
-3. Mantenha a estrutura de pastas, pois o HTML referencia arquivos em `assets/css` e `assets/js`.
+O caminho principal de entrega não depende mais do monitoramento de pasta do Fotto.
 
-## Estrutura
+**Captura → edição → Editadas → criar mídia no Fotto → PUT direto no S3 → confirmar `processed=true`.**
 
-```txt
-hisho-web-estrutura-v1/
-├─ index.html
-├─ pages/
-│  └─ erro.html
-├─ assets/
-│  ├─ css/
-│  │  ├─ app.css
-│  │  └─ modules/
-│  ├─ js/
-│  │  ├─ core/
-│  │  ├─ modules/
-│  │  └─ patches/
-│  ├─ img/
-│  └─ vendor/
-├─ config/
-│  └─ endpoints.example.js
-├─ components/
-├─ data/mock/
-└─ docs/
-   ├─ ARCHITECTURE.md
-   └─ js-modules-manifest.json
+O Fotto Web continua disponível como fallback e para conferência do evento.
+
+## Entrega Fotto
+
+Na aba **Entrega**:
+
+- conecte/reconecte a conta Fotto pelo menu `⋯`;
+- escolha o evento de destino;
+- ative **Envio direto automático**;
+- use **Enviar pendentes agora** para processar fotos já aprovadas;
+- use **Abrir Fotto Web · fallback** apenas quando precisar conferir a página ou usar o método antigo.
+
+A fila é persistente e evita reenviar fotos já confirmadas para o mesmo evento.
+
+## Fluxo principal
+
+**Captura → Galeria → Revisão → Entrega**
+
+Fotos reprovadas pela curadoria permanecem em **Sob Revisão** e não entram na entrega até serem aprovadas ou corrigidas.
+
+## Compilação
+
+O projeto usa Java + Android SDK 35, sem Gradle.
+
+O GitHub Actions em `.github/workflows/build-apk.yml` instala API 35 / Build Tools 35.0.0, executa os testes e roda:
+
+```bash
+python3 build.py
 ```
 
-## O que foi feito
+Saída: **Lumo.apk**
 
-- CSS removido do HTML e reunido em `assets/css/app.css`.
-- Scripts inline extraídos para arquivos em `assets/js`.
-- Ordem original dos scripts preservada para evitar quebrar regras existentes.
-- Patches/fixes mantidos em `assets/js/patches`.
-- Página de erro criada em `pages/erro.html`.
-- Documentação inicial criada em `docs/ARCHITECTURE.md`.
-- Pasta de configuração criada para centralizar APIs em futuras refatorações.
+- `versionCode`: 36
+- `versionName`: `0.15.0-fotto-direto`
+- minSdk: 29
+- targetSdk: 35
 
-## Observação importante
-
-Como o Hisho Web já tinha muitas regras acopladas em um único HTML, esta entrega prioriza uma refatoração segura: organização por arquivos sem remover funcionalidades. A próxima etapa ideal é transformar os módulos globais em serviços menores, começando por APIs, filtros, autenticação, gráficos e renderização da carteira.
-
-## Instalação como aplicativo (PWA)
-
-O Hisho Web agora possui favicon, manifesto, Service Worker, ícones e botão de instalação.
-
-A instalação funciona em HTTPS ou localhost. Abrir o HTML diretamente por `file://` não habilita o Service Worker. Após publicar, abra no Chrome ou Edge e use o botão **Instalar Hisho** no cabeçalho.
+Veja `IMPLEMENTACAO-0.15.0-FOTTO-DIRETO.txt` para o fluxo e o roteiro do primeiro teste.
